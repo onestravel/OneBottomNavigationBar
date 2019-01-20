@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="StyleNavigationView">
+        <attr name="itemIconTint" format="reference"></attr>
+        <attr name="itemTextColor" format="reference"></attr>
+        <attr name="floatingEnable" format="boolean">false</attr>
+        <attr name="menu" format="reference"></attr>
+    </declare-styleable>
+</resources>
