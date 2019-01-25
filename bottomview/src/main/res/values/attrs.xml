@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="StyleNavigationView">
+    <declare-styleable name="StyleBottomLayout">
         <attr name="itemIconTint" format="reference"></attr>
         <attr name="itemTextColor" format="reference"></attr>
         <attr name="floatingEnable" format="boolean">false</attr>
-        <attr name="menu" format="reference"></attr>
+        <attr name="xml" format="reference"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="StyleBottomItemView">
+        <attr name="icon" format="reference"></attr>
+        <attr name="title" format="string"></attr>
+        <attr name="floating" format="boolean"></attr>
     </declare-styleable>
 </resources>

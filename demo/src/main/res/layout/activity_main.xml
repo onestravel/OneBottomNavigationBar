@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
     tools:context=".MainActivity">
-
-    <cn.onestravel.bottomview.NavigationView
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="111111111111111111111111111111111111111111111111"
+        android:layout_above="@+id/BottomLayout"
+        android:background="@android:color/holo_orange_dark"/>
+    <cn.onestravel.bottomview.BottomView
+        android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constrainedHeight="true"
-        app:menu="@menu/navigation_menu">
+        android:background="@android:color/holo_blue_light"
+        app:xml="@menu/navigation_menu"
+        android:layout_alignParentBottom="true">
 
-    </cn.onestravel.bottomview.NavigationView>
+    </cn.onestravel.bottomview.BottomView>
 
-</android.support.constraint.ConstraintLayout>
+
+</RelativeLayout>
