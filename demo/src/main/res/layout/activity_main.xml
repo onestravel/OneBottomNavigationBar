@@ -6,20 +6,25 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     tools:context=".MainActivity">
+
     <TextView
         android:id="@+id/tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="111111111111111111111111111111111111111111111111"
         android:layout_above="@+id/BottomLayout"
-        android:background="@android:color/holo_orange_dark"/>
+        android:background="@android:color/holo_orange_dark"
+        android:text="111111111111111111111111111111111111111111111111" />
+
     <cn.onestravel.bottomview.BottomView
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@android:color/holo_blue_light"
-        app:xml="@menu/navigation_menu"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        app:itemTextColor="@drawable/item_check"
+        app:itemIconTint="@drawable/item_check"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        app:xml="@menu/navigation_menu">
 
     </cn.onestravel.bottomview.BottomView>
 

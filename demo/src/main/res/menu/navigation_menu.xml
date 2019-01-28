@@ -4,21 +4,25 @@
 
     <item
         android:id="@+id/tab1"
-        android:icon="@drawable/ic_launcher_round"
-        android:title="index"></item>
+        android:icon="@drawable/tab_contact_normal"
+        android:title="首页"></item>
     <item
         android:id="@+id/tab2"
-        android:icon="@drawable/ic_launcher_round"
-        android:title="222"></item>
+        android:icon="@drawable/tab_contact_normal"
+        android:title="联系人"></item>
+    <item
+        android:id="@+id/tab5"
+        android:icon="@drawable/tab_contact_normal"
+        android:title=""></item>
     <item
         android:id="@+id/tab3"
-        android:icon="@drawable/ic_launcher_round"
-        android:title="333"></item>
+        android:icon="@drawable/tab_contact_normal"
+        android:title="发现"></item>
     <item
         android:id="@+id/tab4"
-        android:icon="@drawable/ic_launcher_round"
+        android:icon="@drawable/tab_contact_normal"
         android:iconTint="@color/colorAccent"
         android:iconTintMode="screen"
-        android:title="444"
+        android:title="我的"
         app:floating="true"></item>
 </menu>
