@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="2"
         android:layout_above="@+id/BottomLayout"
+        android:gravity="center"
+        android:textSize="18sp"
         android:background="@android:color/holo_orange_dark"
         android:text="111111111111111111111111111111111111111111111111" />
 
@@ -22,6 +26,9 @@
         android:layout_alignParentBottom="true"
         app:itemTextColor="@drawable/item_check"
         app:itemIconTint="@drawable/item_check"
+        app:floatingUp="30dp"
+        app:floatingEnable="true"
+        android:background="@android:color/white"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         app:xml="@menu/navigation_menu">
@@ -29,4 +36,4 @@
     </cn.onestravel.bottomview.BottomView>
 
 
-</RelativeLayout>
+</LinearLayout>

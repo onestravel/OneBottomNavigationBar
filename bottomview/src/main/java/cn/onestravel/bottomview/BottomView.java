@@ -2,34 +2,26 @@ package cn.onestravel.bottomview;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
-import android.graphics.Picture;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.os.Build;
-import android.provider.CalendarContract;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -41,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.onestravel.bottomview.utils.DensityUtils;
-import cn.onestravel.bottomview.utils.EventUtils;
 
 /**
  * @author onestravel
@@ -60,11 +51,13 @@ public class BottomView extends View {
     private int bottomPadding = DensityUtils.dpToPx(getResources(), 3);
     private int textTop = DensityUtils.dpToPx(getResources(), 3);
     private Paint mPaint;
-    private int itemTextColorRes;
     private ColorStateList itemIconTintRes;
     private ColorStateList itemColorStateList;
     private OnItemSelectedListener onItemSelectedListener;
-    private int checkedPosition = -1;
+    private int checkedPosition = 0;
+    private int floatingUp;
+    private Drawable background;
+    private boolean floatingEnable;
 
     public BottomView(Context context) {
         super(context);
@@ -89,6 +82,15 @@ public class BottomView extends View {
             parseXml(xmlRes);
             itemIconTintRes = ta.getColorStateList(R.styleable.StyleBottomLayout_itemIconTint);
             itemColorStateList = ta.getColorStateList(R.styleable.StyleBottomLayout_itemTextColor);
+            floatingEnable = ta.getBoolean(R.styleable.StyleBottomLayout_floatingEnable, false);
+            if (floatingEnable) {
+                floatingUp = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
+            }
+        }
+        if (getBackground() != null && getBackground() instanceof ColorDrawable) {
+            background = getBackground();
+        } else {
+            background = new ColorDrawable(Color.WHITE);
         }
     }
 
@@ -123,6 +125,8 @@ public class BottomView extends View {
                                     item.floating = xmlParser.getAttributeBooleanValue(i, false);
                                 } else if ("checked".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
                                     item.checked = xmlParser.getAttributeBooleanValue(i, false);
+                                } else if ("checkable".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
+                                    item.checkable = xmlParser.getAttributeBooleanValue(i, false);
                                 }
                             }
                             itemList.add(item);
@@ -146,21 +150,55 @@ public class BottomView extends View {
         }
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        setSelected(checkedPosition);
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = MeasureSpec.getSize(widthMeasureSpec);
         mHeight = MeasureSpec.getSize(heightMeasureSpec);
         mItemWidth = (mWidth - getPaddingLeft() - getPaddingRight()) / itemList.size();
-        mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
         topPadding = getPaddingTop();
         bottomPadding = getPaddingBottom();
+        mHeight += floatingUp;
+        mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.getMode(heightMeasureSpec)));
+    }
+
+
+    @Override
+    public ViewGroup.LayoutParams getLayoutParams() {
+        ViewGroup.LayoutParams params = super.getLayoutParams();
+        return params;
+    }
+
+    @Override
+    public void setLayoutParams(ViewGroup.LayoutParams params) {
+        floatingUp = floatingUp > params.height / 2 ? params.height / 2 : floatingUp;
+        if (params instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        } else if (params instanceof RelativeLayout.LayoutParams) {
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        } else if (params instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        }
+        super.setLayoutParams(params);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        //画背景
+        background.setBounds(0, floatingUp, mWidth, mHeight);
+        background.draw(canvas);
+        //画Floating
+        drawFloating(canvas);
         if (itemList.size() > 0) {
             for (int i = 0; i < itemList.size(); i++) {
                 Item item = itemList.get(i);
@@ -168,6 +206,39 @@ public class BottomView extends View {
             }
         }
 
+    }
+
+    private void drawFloating(Canvas canvas) {
+        if (itemList.size() > 0) {
+            for (int i = 0; i < itemList.size(); i++) {
+                Item item = itemList.get(i);
+                if (item.floating) {
+                    int startTop = 0;
+                    //图片文字内容宽度
+                    int width = mItemHeight - topPadding - bottomPadding;
+                    //图片文字内容高度
+                    int height = mItemHeight - topPadding - bottomPadding;
+                    startTop = topPadding;
+                    if (!TextUtils.isEmpty(item.title)) {
+                        int color = item.checked ? itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor()) : itemColorStateList.getDefaultColor();
+                        createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
+                        int textHeight = getTextHeight(item.title, mPaint);
+                        int textY = startTop + height - textHeight / 4;//上边距+图片文字内容高度
+                        int w = textY - textHeight / 2 - topPadding;
+//                        width = height = height - textHeight - textTop;
+                    }
+                    int x = getPaddingLeft() + i * mItemWidth + (mItemWidth - width) / 2 + width / 2;
+                    int y = mItemHeight / 2;
+                    int r = mItemHeight / 2;
+                    Paint paint = createPaint(Color.WHITE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        paint.setColorFilter(background.getColorFilter());
+                    }
+                    paint.setStyle(Paint.Style.FILL);
+                    canvas.drawCircle(x, y, r, paint);
+                }
+            }
+        }
     }
 
     /**
@@ -178,16 +249,25 @@ public class BottomView extends View {
         if (item == null) {
             return;
         }
+        //图片文字内容宽度
         int width = mItemHeight - topPadding - bottomPadding;
+        //图片文字内容高度
         int height = mItemHeight - topPadding - bottomPadding;
+        int startTop = 0;
+        if (!item.floating) {
+            startTop = topPadding + floatingUp;
+            width = width - floatingUp;
+            height = height - floatingUp;
+        } else {
+            startTop = topPadding;
+        }
         if (!TextUtils.isEmpty(item.title)) {
             int color = item.checked ? itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor()) : itemColorStateList.getDefaultColor();
-            createPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
+            createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
             int textHeight = getTextHeight(item.title, mPaint);
-            int textY = mItemHeight - bottomPadding - textHeight / 4;
+            int textY = startTop + height - textHeight / 4;//上边距+图片文字内容高度
             int w = textY - textHeight / 2 - topPadding;
-            width = w > width ? width : w;
-            width = height = width - textTop;
+            width = height = height - textHeight - textTop;
             canvas.drawText(item.title, position * mItemWidth + getPaddingLeft() + mItemWidth / 2, textY, mPaint);
         }
         if (item.icon != null) {
@@ -199,9 +279,12 @@ public class BottomView extends View {
             src.bottom = item.icon.getHeight();
             Rect to = new Rect();
             to.left = getPaddingLeft() + position * mItemWidth + (mItemWidth - width) / 2;
-            to.top = topPadding;
+            to.top = startTop;
             to.right = to.left + width;
             to.bottom = topPadding + height;
+            if (!item.floating) {
+                to.bottom = (int) (topPadding + height + floatingUp);
+            }
             Paint paint = new Paint();
 
             if (itemIconTintRes != null) {
@@ -209,6 +292,42 @@ public class BottomView extends View {
                 paint.setColorFilter(new PorterDuffColorFilter(pColor, PorterDuff.Mode.MULTIPLY));
             }
             canvas.drawBitmap(item.icon, src, to, paint);
+        }
+        if (item.msgCount != 0) {
+            int x = 0;
+            int y = 0;
+            int r = 0;
+            if (item.msgCount > 0) {
+                createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 9) : item.titleSize, Color.WHITE);
+                r = getTextWidth("99+", mPaint) / 2 + 1;
+                String count = "";
+                if (item.msgCount > 99) {
+                    count = "99+";
+                    createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 8) : item.titleSize, Color.WHITE);
+                } else {
+                    count = String.valueOf(item.msgCount);
+                }
+                x = getPaddingLeft() + position * mItemWidth + (mItemWidth - width) / 2 + width - r / 4;
+                y = startTop + r - r / 3;
+                Paint paint = createPaint(Color.RED);
+                canvas.drawCircle(x, y, r, paint);
+                canvas.drawText(count, x, y + r / 2, mPaint);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setColor(Color.WHITE);
+                paint.setStrokeWidth(DensityUtils.dpToPx(getResources(), 1));
+                canvas.drawCircle(x, y, r, paint);
+            } else {
+                r = 9;
+                x = getPaddingLeft() + position * mItemWidth + (mItemWidth - width) / 2 + width - r;
+                y = startTop + r;
+                Paint paint = createPaint(Color.RED);
+                canvas.drawCircle(x, y, r, paint);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setColor(Color.WHITE);
+                paint.setStrokeWidth(DensityUtils.dpToPx(getResources(), 1));
+                canvas.drawCircle(x, y, r, paint);
+            }
+
         }
     }
 
@@ -233,7 +352,7 @@ public class BottomView extends View {
         return outBitmap;
     }
 
-    private Paint createPaint(int textSize, int textColor) {
+    private Paint createTextPaint(int textSize, int textColor) {
         if (mPaint == null) {
             mPaint = new Paint();
         }
@@ -243,6 +362,15 @@ public class BottomView extends View {
         mPaint.setAntiAlias(true);//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        return mPaint;
+    }
+
+    private Paint createPaint(int color) {
+        Paint mPaint = new Paint();
+        mPaint.setColor(color);
+        mPaint.setAntiAlias(true);//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
+        mPaint.setTextAlign(Paint.Align.CENTER);
+        mPaint.setStyle(Paint.Style.FILL);
         return mPaint;
     }
 
@@ -264,6 +392,11 @@ public class BottomView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         double x = (double) event.getRawX();
         double y = (double) event.getRawY();
+        //获取控件在屏幕的位置
+        int[] location = new int[2];
+        getLocationOnScreen(location);
+        int locationY = location[1];
+        y = y - locationY;
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -272,16 +405,29 @@ public class BottomView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 for (int i = 0; i < itemList.size(); i++) {
+                    Item item = itemList.get(i);
+                    int startTop = 0;
+                    if (!item.floating) {
+                        startTop = getPaddingTop() + floatingUp;
+                    }
                     if (x > getPaddingLeft() + mItemWidth * i && x < getPaddingLeft() + mItemWidth * (i + 1)) {
-                        if (itemList.get(i).checkable) {
-                            if (checkedPosition >= 0) {
-                                itemList.get(checkedPosition).checked = false;
-                            }
-                            itemList.get(i).checked = true;
-                            checkedPosition = i;
+                        //图片文字内容宽度
+                        int width = mItemHeight - topPadding - bottomPadding;
+                        //图片文字内容高度
+                        int height = mItemHeight - topPadding - bottomPadding;
+                        if (!TextUtils.isEmpty(item.title)) {
+                            int color = item.checked ? itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor()) : itemColorStateList.getDefaultColor();
+                            createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
+                            int textHeight = getTextHeight(item.title, mPaint);
+                            int textY = startTop + height - textHeight / 4;//上边距+图片文字内容高度
+                            int w = textY - textHeight / 2 - topPadding;
+//                        width = height = height - textHeight - textTop;
                         }
-                        if (onItemSelectedListener != null) {
-                            onItemSelectedListener.onItemSelected(itemList.get(i), i);
+                        int centerX = getPaddingLeft() + i * mItemWidth + (mItemWidth - width) / 2 + width / 2;
+                        int centerY = mItemHeight / 2;
+                        int r = mItemHeight / 2;
+                        if (y >= floatingUp || (item.floating && isInCircle(centerX, centerY, r, (int) x, (int) y))) {
+                            setSelected(i);
                         }
                     }
                 }
@@ -289,6 +435,53 @@ public class BottomView extends View {
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+    public void setSelected(int position) {
+        Item item = itemList.get(position);
+        if (item.checkable) {
+            if (checkedPosition >= 0) {
+                itemList.get(checkedPosition).checked = false;
+            }
+            item.checked = true;
+            checkedPosition = position;
+        }
+        if (onItemSelectedListener != null) {
+            onItemSelectedListener.onItemSelected(itemList.get(position), position);
+        }
+    }
+
+    public void setMsgCount(int position, int count) {
+        if (position < itemList.size()) {
+            itemList.get(position).msgCount = count;
+            postInvalidate();
+        }
+    }
+
+
+    /**
+     * 判断触摸位置是否在圆形内部
+     *
+     * @param vCenterX 圆形的 X 坐标
+     * @param vCenterY 圆形的 Y 坐标
+     * @param r        圆形的半径
+     * @param touchX   触摸位置的 X 坐标
+     * @param touchY   触摸位置的 Y 坐标
+     * @return
+     */
+    private boolean isInCircle(int vCenterX, int vCenterY, int r, int touchX, int touchY) {
+        //点击位置x坐标与圆心的x坐标的距离
+        int distanceX = Math.abs(vCenterX - touchX);
+        //点击位置y坐标与圆心的y坐标的距离
+        int distanceY = Math.abs(vCenterY - touchY);
+        //点击位置与圆心的直线距离
+        int distanceZ = (int) Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+
+        //如果点击位置与圆心的距离大于圆的半径，证明点击位置没有在圆内
+        if (distanceZ > r) {
+            return false;
+        }
+        return true;
     }
 
     public interface OnItemSelectedListener {
@@ -303,5 +496,38 @@ public class BottomView extends View {
         private boolean floating = false;
         private boolean checked = false;
         private boolean checkable = true;
+        private int msgCount = 0;
+
+        public int getId() {
+            return id;
+        }
+
+        public Bitmap getIcon() {
+            return icon;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public int getTitleSize() {
+            return titleSize;
+        }
+
+        public boolean isFloating() {
+            return floating;
+        }
+
+        public boolean isChecked() {
+            return checked;
+        }
+
+        public boolean isCheckable() {
+            return checkable;
+        }
+
+        public int getMsgCount() {
+            return msgCount;
+        }
     }
 }

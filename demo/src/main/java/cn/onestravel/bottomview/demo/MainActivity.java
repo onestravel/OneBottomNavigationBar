@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.onestravel.bottomview.BottomView;
@@ -14,14 +15,23 @@ import cn.onestravel.bottomview.utils.EventUtils;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView textView;
+    private BottomView bottomView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((BottomView) findViewById(R.id.BottomLayout)).setOnItemSelectedListener(new BottomView.OnItemSelectedListener() {
+        textView = ((TextView) findViewById(R.id.tv));
+        bottomView = ((BottomView) findViewById(R.id.BottomLayout));
+        bottomView.setMsgCount(0,32);
+        bottomView.setMsgCount(4,111);
+        bottomView.setMsgCount(3,1);
+        bottomView.setMsgCount(1,-1);
+        bottomView.setOnItemSelectedListener(new BottomView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(BottomView.Item item, int position) {
-                Toast.makeText(MainActivity.this, "点击了第" + position + "个", Toast.LENGTH_SHORT).show();
+                textView.setText(item.getTitle());
             }
         });
     }
