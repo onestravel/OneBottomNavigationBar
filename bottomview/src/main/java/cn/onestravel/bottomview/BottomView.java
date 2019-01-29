@@ -87,6 +87,9 @@ public class BottomView extends View {
                 floatingUp = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
             }
         }
+        if (itemList.size() > 5) {
+            itemList = itemList.subList(0, 5);
+        }
         if (getBackground() != null && getBackground() instanceof ColorDrawable) {
             background = getBackground();
         } else {

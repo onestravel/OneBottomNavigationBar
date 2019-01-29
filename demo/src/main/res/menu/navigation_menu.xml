@@ -26,4 +26,15 @@
         android:iconTint="@color/colorAccent"
         android:iconTintMode="screen"
         android:title="我的"></item>
+    <item
+        android:id="@+id/tab6"
+        android:icon="@drawable/tab_contact_normal"
+        android:title="发现"></item>
+    <item
+        android:id="@+id/tab7"
+        android:icon="@drawable/ic_launcher"
+        android:iconTint="@color/colorAccent"
+        android:iconTintMode="screen"
+        android:title="我的"></item>
+
 </menu>
