@@ -9,12 +9,14 @@
     <item
         android:id="@+id/tab2"
         android:icon="@drawable/bar_constact"
+
         android:title="联系人"></item>
     <item
         android:id="@+id/tab5"
         android:icon="@drawable/tab_manage_selected"
         android:title="拍照"
         app:floating="true"
+        android:checked="true"
         android:checkable="false"></item>
     <item
         android:id="@+id/tab3"

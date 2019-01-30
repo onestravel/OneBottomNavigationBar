@@ -12,7 +12,5 @@
         <attr name="icon" format="reference"></attr>
         <attr name="title" format="string"></attr>
         <attr name="floating" format="boolean"></attr>
-        <!--<attr name="floatingUp" format="dimension"></attr>-->
-        <!--<attr name="floatingDown" format="dimension"></attr>-->
     </declare-styleable>
 </resources>

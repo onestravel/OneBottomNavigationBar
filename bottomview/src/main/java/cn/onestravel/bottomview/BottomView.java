@@ -171,6 +171,9 @@ public class BottomView extends View {
                                     item.checkable = xmlParser.getAttributeBooleanValue(i, false);
                                 }
                             }
+                            if(item.checkable&&item.checked){
+                                checkedPosition = itemList.size();
+                            }
                             itemList.add(item);
                         }
                         break;

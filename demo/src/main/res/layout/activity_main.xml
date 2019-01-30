@@ -28,7 +28,7 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         app:floatingEnable="true"
-        app:floatingUp="30dp"
+        app:floatingUp="25dp"
         app:menu="@menu/navigation_menu">
 
     </cn.onestravel.bottomview.BottomView>
