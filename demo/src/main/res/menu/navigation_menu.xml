@@ -4,37 +4,24 @@
 
     <item
         android:id="@+id/tab1"
-        android:icon="@drawable/tab_contact_normal"
+        android:icon="@drawable/bar_news"
         android:title="首页"></item>
     <item
         android:id="@+id/tab2"
-        android:icon="@drawable/tab_contact_normal"
+        android:icon="@drawable/bar_constact"
         android:title="联系人"></item>
     <item
         android:id="@+id/tab5"
-        android:icon="@drawable/tab_contact_normal"
+        android:icon="@drawable/tab_manage_selected"
         android:title="拍照"
         app:floating="true"
         android:checkable="false"></item>
     <item
         android:id="@+id/tab3"
-        android:icon="@drawable/tab_contact_normal"
+        android:icon="@drawable/bar_invite"
         android:title="发现"></item>
     <item
         android:id="@+id/tab4"
-        android:icon="@drawable/ic_launcher"
-        android:iconTint="@color/colorAccent"
-        android:iconTintMode="screen"
+        android:icon="@drawable/bar_my"
         android:title="我的"></item>
-    <item
-        android:id="@+id/tab6"
-        android:icon="@drawable/tab_contact_normal"
-        android:title="发现"></item>
-    <item
-        android:id="@+id/tab7"
-        android:icon="@drawable/ic_launcher"
-        android:iconTint="@color/colorAccent"
-        android:iconTintMode="screen"
-        android:title="我的"></item>
-
 </menu>

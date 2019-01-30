@@ -1,5 +1,6 @@
 package cn.onestravel.bottomview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -12,9 +13,13 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -75,17 +80,31 @@ public class BottomView extends View {
     }
 
 
+    /**
+     * 初始化，获取该View的自定义属性，以及item 列表
+     *
+     * @param context      上下文
+     * @param attrs        属性
+     * @param defStyleAttr 默认样式
+     */
+    @SuppressLint("ResourceType")
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.StyleBottomLayout);
-            int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_xml, 0);
-            parseXml(xmlRes);
             itemIconTintRes = ta.getColorStateList(R.styleable.StyleBottomLayout_itemIconTint);
             itemColorStateList = ta.getColorStateList(R.styleable.StyleBottomLayout_itemTextColor);
+            if (itemIconTintRes == null) {
+                itemIconTintRes = ResourcesCompat.getColorStateList(getResources(), R.drawable.default_blue_tab_tint, null);
+            }
+            if (itemColorStateList == null) {
+                itemColorStateList = ResourcesCompat.getColorStateList(getResources(), R.drawable.default_blue_tab_tint, null);
+            }
             floatingEnable = ta.getBoolean(R.styleable.StyleBottomLayout_floatingEnable, false);
             if (floatingEnable) {
                 floatingUp = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
             }
+            int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
+            parseXml(xmlRes);
         }
         if (itemList.size() > 5) {
             itemList = itemList.subList(0, 5);
@@ -97,6 +116,11 @@ public class BottomView extends View {
         }
     }
 
+    /**
+     * 解析 menu 的 xml 的文件，得到相关的 导航栏菜单
+     *
+     * @param xmlRes
+     */
     private void parseXml(int xmlRes) {
         XmlResourceParser xmlParser = getResources().getXml(xmlRes);
         try {
@@ -119,9 +143,24 @@ public class BottomView extends View {
                                     item.id = xmlParser.getAttributeResourceValue(i, 0);
                                 } else if ("icon".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
                                     drawableId = xmlParser.getAttributeResourceValue(i, 0);
-//                                    Drawable drawable = ResourcesCompat.getDrawable(getResources(),drawableId,null);
-                                    Bitmap bmp = BitmapFactory.decodeResource(getResources(), drawableId);
-                                    item.icon = bmp;
+                                    Drawable drawable = ResourcesCompat.getDrawable(getResources(), drawableId, null);
+                                    item.drawable = drawable.getConstantState().newDrawable();
+                                    StateListDrawable stateListDrawable = new StateListDrawable();
+                                    if (drawable instanceof StateListDrawable) {
+                                        stateListDrawable = (StateListDrawable) drawable;
+                                        stateListDrawable.setState(new int[]{android.R.attr.state_checked});
+                                        stateListDrawable.mutate();
+                                    } else {
+                                        Drawable selectedDrawable = tintListDrawable(drawable, itemIconTintRes);
+                                        selectedDrawable.setState(new int[]{android.R.attr.state_checked});
+                                        stateListDrawable.addState(new int[]{android.R.attr.state_checked}, selectedDrawable.getCurrent());
+                                        stateListDrawable.addState(new int[]{android.R.attr.state_selected},selectedDrawable.getCurrent());
+                                        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, selectedDrawable.getCurrent());
+                                        stateListDrawable.addState(new int[]{android.R.attr.state_focused}, selectedDrawable.getCurrent());
+                                        selectedDrawable.setState(new int[]{});
+                                        stateListDrawable.addState(new int[]{}, selectedDrawable.getCurrent());
+                                    }
+                                    item.icon = stateListDrawable;
                                 } else if ("title".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
                                     item.title = xmlParser.getAttributeValue(i);
                                 } else if ("floating".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
@@ -152,6 +191,7 @@ public class BottomView extends View {
             e.printStackTrace();
         }
     }
+
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -266,6 +306,9 @@ public class BottomView extends View {
         }
         if (!TextUtils.isEmpty(item.title)) {
             int color = item.checked ? itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor()) : itemColorStateList.getDefaultColor();
+            if (!item.checkable) {
+                color = itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor());
+            }
             createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
             int textHeight = getTextHeight(item.title, mPaint);
             int textY = startTop + height - textHeight / 4;//上边距+图片文字内容高度
@@ -274,12 +317,12 @@ public class BottomView extends View {
             canvas.drawText(item.title, position * mItemWidth + getPaddingLeft() + mItemWidth / 2, textY, mPaint);
         }
         if (item.icon != null) {
-            Bitmap bitmap = item.icon;
-            Rect src = new Rect();
-            src.left = 0;
-            src.top = 0;
-            src.right = item.icon.getWidth();
-            src.bottom = item.icon.getHeight();
+//            Bitmap bitmap = item.icon;
+////            Rect src = new Rect();
+////            src.left = 0;
+////            src.top = 0;
+////            src.right = item.icon.getWidth();
+////            src.bottom = item.icon.getHeight();
             Rect to = new Rect();
             to.left = getPaddingLeft() + position * mItemWidth + (mItemWidth - width) / 2;
             to.top = startTop;
@@ -288,13 +331,27 @@ public class BottomView extends View {
             if (!item.floating) {
                 to.bottom = (int) (topPadding + height + floatingUp);
             }
-            Paint paint = new Paint();
-
-            if (itemIconTintRes != null) {
-                int pColor = item.checked ? itemIconTintRes.getColorForState(new int[]{android.R.attr.state_checked}, itemIconTintRes.getDefaultColor()) : itemIconTintRes.getDefaultColor();
-                paint.setColorFilter(new PorterDuffColorFilter(pColor, PorterDuff.Mode.MULTIPLY));
+////            Paint paint = new Paint();
+////
+////            if (itemIconTintRes != null) {
+////                int pColor = item.checked ? itemIconTintRes.getColorForState(new int[]{android.R.attr.state_checked}, itemIconTintRes.getDefaultColor()) : itemIconTintRes.getDefaultColor();
+////                paint.setColorFilter(new PorterDuffColorFilter(pColor, PorterDuff.Mode.MULTIPLY));
+////            }
+////            canvas.drawBitmap(item.icon, src, to, paint);
+            Drawable drawable;
+            if (item.checkable) {
+                if (item.checked) {
+                    item.icon.setState(new int[]{android.R.attr.state_checked});
+                    drawable = item.icon.getCurrent();
+                } else {
+                    item.icon.setState(new int[]{});
+                    drawable = item.icon.getCurrent();
+                }
+            } else {
+                drawable = item.drawable;
             }
-            canvas.drawBitmap(item.icon, src, to, paint);
+            drawable.setBounds(to);
+            drawable.draw(canvas);
         }
         if (item.msgCount != 0) {
             int x = 0;
@@ -390,6 +447,34 @@ public class BottomView extends View {
         return rect.height();
     }
 
+    /**
+     * 更改图片颜色
+     *
+     * @param drawable
+     * @param color
+     * @return
+     */
+    public Drawable tintDrawable(Drawable drawable, int color) {
+        Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
+//        DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY);
+        DrawableCompat.setTint(wrappedDrawable, color);
+        return wrappedDrawable;
+    }
+
+
+    /**
+     * 更改图片颜色
+     *
+     * @param drawable
+     * @param colors
+     * @return
+     */
+    public Drawable tintListDrawable(Drawable drawable, ColorStateList colors) {
+        Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY);
+        DrawableCompat.setTintList(wrappedDrawable, colors);
+        return wrappedDrawable;
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -493,7 +578,8 @@ public class BottomView extends View {
 
     public class Item {
         private int id;
-        private Bitmap icon;
+        private StateListDrawable icon;
+        private Drawable drawable;
         private String title;
         private int titleSize;
         private boolean floating = false;
@@ -505,16 +591,8 @@ public class BottomView extends View {
             return id;
         }
 
-        public Bitmap getIcon() {
-            return icon;
-        }
-
         public String getTitle() {
             return title;
-        }
-
-        public int getTitleSize() {
-            return titleSize;
         }
 
         public boolean isFloating() {

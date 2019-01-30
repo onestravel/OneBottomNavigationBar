@@ -5,7 +5,7 @@
         <attr name="itemTextColor" format="reference"></attr>
         <attr name="floatingEnable" format="boolean">false</attr>
         <attr name="floatingUp" format="dimension"></attr>
-        <attr name="xml" format="reference"></attr>
+        <attr name="menu" format="reference"></attr>
     </declare-styleable>
 
     <declare-styleable name="StyleBottomItemView">
