@@ -12,20 +12,158 @@
 
 ![SVID_20190130_155132_1](resources/SVID_20190130_155132_1.gif)
 
+<center>图1</center>
+
 #### 中间有凸起，并且中间的不能选中，但点击事件可以响应
 
 ![SVID_20190130_155440_1](resources/SVID_20190130_155440_1.gif)
+
+<center>图2</center>
 
 ## 引入方法
 
 #### gradle
 
-在项目中的 build.gradle (与model同级的) 中增加如下配置
+在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
 
 ```
 
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
 
+```
 
+在model 中的build.gradle 中增加依赖
 
+```
+dependencies {
+implementation 'com.github.onestravel:BottomView:1.0.0'
+}
+
+```
+
+## 属性说明
+
+### BottomView 属性说明
+
+| 属性               | 参考值                 | 说明                                                         |
+| ------------------ | ---------------------- | ------------------------------------------------------------ |
+| app:itemIconTint   | @drawable/tab_selecter | 整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
+| app:itemTextColor  | @drawable/tab_selecter | @drawable/tab_selecter@drawable/tab_selecter整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
+| app:floatingEnable | true/false             | 是否开启浮动，默认为false，设置为true是，可以实现中间凸起    |
+| app:floatingUp     | 20dp                   | 设置Tab的上浮尺寸，比如：上浮20dp，上浮尺寸不可超过整个菜单高度的1/2 |
+| app:menu           | @menu/botom_menu       | BottomView导航栏的关键，设置导航栏的tab菜单                  |
+
+#### 示例1:不需要浮动（凸起）的菜单，图1效果
+
+```
+
+    <cn.onestravel.bottomview.BottomView
+        android:id="@+id/BottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        app:menu="@menu/navigation_menu">
+
+    </cn.onestravel.bottomview.BottomView>
+    
+```
+
+#### 示例2:需要浮动（凸起）的菜单，图2效果
+
+```
+ <cn.onestravel.bottomview.BottomView
+        android:id="@+id/BottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        app:floatingEnable="true"
+        app:floatingUp="25dp"
+        app:menu="@menu/navigation_menu">
+
+    </cn.onestravel.bottomview.BottomView>
+```
+
+### menu 菜单属性值说明
+
+| 属性              | 参考值             | 说明                                                         |
+| ----------------- | ------------------ | ------------------------------------------------------------ |
+| android:id        | @+id/tab1          | 导航菜单 Item 的ID；                                         |
+| android:icon      | @drawable/bar_news | 导航菜单 Item 的图标，可以是图标选择器（selector），也可以是默认图标，根据BottomView的属性 app:itemIconTint 更改选中与不选中的颜色变化，默认为蓝色和灰色； |
+| android:title     | 首页               | 导航菜单 Item 的文字，可以默认为空字符串，表示不设置；       |
+| android:checkable | true/false         | 设置导航菜单 Item 是否可以选择，值影响选择与不选中效果，不影响点击事件； |
+| android:checked   | true/false         | 设置导航菜单 Item 是否默认选中,默认为第一个选中，请不要在多个Item上设置改； |
+| app:floating      | true/false         | 设置该导航菜单 Item 是否浮动，与BottomView 的app:floatingEnable和 app:floatingUp属性配合使用，默认为false，即不浮动（不凸起）； |
+
+#### 示例1:不需要浮动（凸起）的菜单，图1效果
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tab1"
+        android:icon="@drawable/bar_news"
+        android:title="首页"></item>
+    <item
+        android:id="@+id/tab2"
+        android:icon="@drawable/bar_constact"
+        android:title="联系人"></item>
+    <item
+        android:id="@+id/tab5"
+        android:icon="@drawable/tab_manage_selected"
+        android:title="拍照"></item>
+    <item
+        android:id="@+id/tab3"
+        android:icon="@drawable/bar_invite"
+        android:title="发现"></item>
+    <item
+        android:id="@+id/tab4"
+        android:icon="@drawable/bar_my"
+        android:title="我的"></item>
+</menu>
+```
+
+#### 示例2:需要浮动（凸起）的菜单，图2效果
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tab1"
+        android:icon="@drawable/bar_news"
+        android:title="首页"></item>
+    <item
+        android:id="@+id/tab2"
+        android:icon="@drawable/bar_constact"
+        android:title="联系人"></item>
+    <item
+        android:id="@+id/tab5"
+        android:icon="@drawable/tab_manage_selected"
+        android:title="拍照"
+        app:floating="true"
+        android:checkable="false"></item>
+    <item
+        android:id="@+id/tab3"
+        android:icon="@drawable/bar_invite"
+        android:title="发现"></item>
+    <item
+        android:id="@+id/tab4"
+        android:icon="@drawable/bar_my"
+        android:title="我的"></item>
+</menu>
 ```
 
