@@ -24,7 +24,7 @@
 
 #### gradle
 
-在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
+- 在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
 
 ```
 
@@ -37,14 +37,40 @@
 
 ```
 
-在model 中的build.gradle 中增加依赖
+- 在model 中的build.gradle 中增加依赖
 
 ```
 dependencies {
-implementation 'com.github.onestravel:BottomView:1.0.0'
+implementation 'com.github.onestravel:BottomView:1.0.1'
 }
 
 ```
+
+#### maven
+
+- 在pom.xml文件中加入下面配置
+
+```
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+```
+
+- 添加maven依赖
+
+```
+	<dependency>
+	    <groupId>com.github.onestravel</groupId>
+	    <artifactId>BottomView</artifactId>
+	    <version>1.0.1</version>
+	</dependency>
+
+```
+
+
 
 ## 属性说明
 
