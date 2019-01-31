@@ -1,4 +1,4 @@
-package cn.onestravel.bottomview.utils;
+package cn.onestravel.navigation.utils;
 
 import android.graphics.Rect;
 import android.view.View;
@@ -6,7 +6,7 @@ import android.view.View;
 /**
  * @author onestravel
  * @version 1.0.0
- * @name cn.onestravel.bottomview.utils.EventUtils
+ * @name EventUtils
  * @description //TODO
  * @createTime 2019/1/23 10:50
  */

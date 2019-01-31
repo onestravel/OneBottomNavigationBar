@@ -1,4 +1,4 @@
-package cn.onestravel.bottomview.utils;
+package cn.onestravel.navigation.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.content.res.Resources;
 /**
  * @author onestravel
  * @version 1.0.0
- * @name cn.onestravel.bottomview.utils.DensityUtils
+ * @name DensityUtils
  * @description //TODO
  * @createTime 2019/1/22 11:11
  */

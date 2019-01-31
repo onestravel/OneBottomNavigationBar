@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context="cn.onestravel.navigation.demo.MainActivity">
 
     <TextView
         android:id="@+id/tv"

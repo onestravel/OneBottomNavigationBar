@@ -1,4 +1,4 @@
-package cn.onestravel.bottomview;
+package cn.onestravel.navigation.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -6,14 +6,11 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -37,14 +34,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.onestravel.bottomview.utils.DensityUtils;
+import cn.onestravel.navigation.utils.DensityUtils;
+import cn.onestravel.bottomview.R;
 
 /**
  * @author onestravel
  * @createTime 2019/1/20 9:48 AM
  * @description TODO
  */
-public class BottomView extends View {
+public class BottomNavigationBar extends View {
     private String TAG = "BottomView";
     private int drawableId = 0;
     private List<Item> itemList = new ArrayList<>();
@@ -64,17 +62,17 @@ public class BottomView extends View {
     private Drawable background;
     private boolean floatingEnable;
 
-    public BottomView(Context context) {
+    public BottomNavigationBar(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public BottomView(Context context, AttributeSet attrs) {
+    public BottomNavigationBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public BottomView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public BottomNavigationBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }

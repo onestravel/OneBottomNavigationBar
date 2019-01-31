@@ -1,1 +1,1 @@
-include ':demo', ':bottomview'
+include ':demo', ':BottomNavigationBar'

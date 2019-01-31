@@ -1,4 +1,4 @@
-package cn.onestravel.bottomview.demo;
+package cn.onestravel.navigation.demo;
 
 import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.onestravel.bottomview.BottomView;
+import cn.onestravel.bottomview.demo.R;
 import cn.onestravel.bottomview.utils.EventUtils;
 
 
