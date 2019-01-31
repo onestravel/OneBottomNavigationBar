@@ -1,10 +1,10 @@
 
 
-# BottomView 使用说明
+# BottomNavigationBar 使用说明
 
 ## 简介：
 
-##### BottomView 是自定义的一个实现App应用底部导航栏功能的View,可以实现底部 2-5 个导航菜单（一般不会有更多），可以实现某一个菜单凸起的效果，如，有5个菜单，可以选择让第三个菜单凸起（floating），这是很多App都有的功能; 可以根据编写的颜色变化的资源文件来更改图标和文字选中时和未选中时的颜色，可以自由控制是否需要选中（checkable）,选择开启时，可变换为选中颜色，选择关闭时，不能更改为选择颜色;可以控制默认选中哪一项；可以设置某一个导航菜单的未读消息数（数字或者小红点）。
+##### BottomNavigationBar 是自定义的一个实现App应用底部导航栏功能的View,可以实现底部 2-5 个导航菜单（一般不会有更多），可以实现某一个菜单凸起的效果，如，有5个菜单，可以选择让第三个菜单凸起（floating），这是很多App都有的功能; 可以根据编写的颜色变化的资源文件来更改图标和文字选中时和未选中时的颜色，可以自由控制是否需要选中（checkable）,选择开启时，可变换为选中颜色，选择关闭时，不能更改为选择颜色;可以控制默认选中哪一项；可以设置某一个导航菜单的未读消息数（数字或者小红点）。
 
 ### 先看一组效果图
 
@@ -41,7 +41,7 @@
 
 ```
 dependencies {
-implementation 'com.github.onestravel:BottomView:1.0.1'
+implementation 'com.github.onestravel:BottomNavigationBar:1.0.2'
 }
 
 ```
@@ -64,8 +64,8 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
 ```
 	<dependency>
 	    <groupId>com.github.onestravel</groupId>
-	    <artifactId>BottomView</artifactId>
-	    <version>1.0.1</version>
+	    <artifactId>BottomNavigationBar</artifactId>
+	    <version>1.0.2</version>
 	</dependency>
 
 ```
@@ -74,7 +74,7 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
 
 ## 属性说明
 
-### BottomView 属性说明
+### BottomNavigationBar 属性说明
 
 | 属性               | 参考值                 | 说明                                                         |
 | ------------------ | ---------------------- | ------------------------------------------------------------ |
@@ -82,13 +82,13 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
 | app:itemTextColor  | @drawable/tab_selecter | @drawable/tab_selecter@drawable/tab_selecter整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
 | app:floatingEnable | true/false             | 是否开启浮动，默认为false，设置为true是，可以实现中间凸起    |
 | app:floatingUp     | 20dp                   | 设置Tab的上浮尺寸，比如：上浮20dp，上浮尺寸不可超过整个菜单高度的1/2 |
-| app:menu           | @menu/botom_menu       | BottomView导航栏的关键，设置导航栏的tab菜单                  |
+| app:menu           | @menu/botom_menu       | BottomNavigationBar导航栏的关键，设置导航栏的tab菜单                  |
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
 
 ```
 
-    <cn.onestravel.bottomview.BottomView
+    <cn.onestravel.navigation.view.BottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -98,14 +98,14 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
         android:paddingBottom="5dp"
         app:menu="@menu/navigation_menu">
 
-    </cn.onestravel.bottomview.BottomView>
+    </cn.onestravel.navigation.view.BottomNavigationBar>
     
 ```
 
 #### 示例2:需要浮动（凸起）的菜单，图2效果
 
 ```
- <cn.onestravel.bottomview.BottomView
+ <cn.onestravel.navigation.view.BottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -117,7 +117,7 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
         app:floatingUp="25dp"
         app:menu="@menu/navigation_menu">
 
-    </cn.onestravel.bottomview.BottomView>
+    </cn.onestravel.navigation.view.BottomNavigationBar>
 ```
 
 ### menu 菜单属性值说明
@@ -125,11 +125,11 @@ implementation 'com.github.onestravel:BottomView:1.0.1'
 | 属性              | 参考值             | 说明                                                         |
 | ----------------- | ------------------ | ------------------------------------------------------------ |
 | android:id        | @+id/tab1          | 导航菜单 Item 的ID；                                         |
-| android:icon      | @drawable/bar_news | 导航菜单 Item 的图标，可以是图标选择器（selector），也可以是默认图标，根据BottomView的属性 app:itemIconTint 更改选中与不选中的颜色变化，默认为蓝色和灰色； |
+| android:icon      | @drawable/bar_news | 导航菜单 Item 的图标，可以是图标选择器（selector），也可以是默认图标，根据BottomNavigationBar的属性 app:itemIconTint 更改选中与不选中的颜色变化，默认为蓝色和灰色； |
 | android:title     | 首页               | 导航菜单 Item 的文字，可以默认为空字符串，表示不设置；       |
 | android:checkable | true/false         | 设置导航菜单 Item 是否可以选择，值影响选择与不选中效果，不影响点击事件； |
 | android:checked   | true/false         | 设置导航菜单 Item 是否默认选中,默认为第一个选中，请不要在多个Item上设置改； |
-| app:floating      | true/false         | 设置该导航菜单 Item 是否浮动，与BottomView 的app:floatingEnable和 app:floatingUp属性配合使用，默认为false，即不浮动（不凸起）； |
+| app:floating      | true/false         | 设置该导航菜单 Item 是否浮动，与BottomNavigationBar 的app:floatingEnable和 app:floatingUp属性配合使用，默认为false，即不浮动（不凸起）； |
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
 

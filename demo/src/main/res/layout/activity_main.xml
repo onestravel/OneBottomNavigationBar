@@ -19,7 +19,7 @@
         android:text="111111111111111111111111111111111111111111111111"
         android:textSize="18sp" />
 
-    <cn.onestravel.bottomview.BottomView
+    <cn.onestravel.navigation.view.BottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -31,7 +31,7 @@
         app:floatingUp="25dp"
         app:menu="@menu/navigation_menu">
 
-    </cn.onestravel.bottomview.BottomView>
+    </cn.onestravel.navigation.view.BottomNavigationBar>
 
 
 </LinearLayout>
