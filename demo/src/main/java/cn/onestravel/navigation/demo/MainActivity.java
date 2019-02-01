@@ -9,29 +9,29 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cn.onestravel.bottomview.BottomView;
 import cn.onestravel.bottomview.demo.R;
-import cn.onestravel.bottomview.utils.EventUtils;
+import cn.onestravel.navigation.utils.EventUtils;
+import cn.onestravel.navigation.view.BottomNavigationBar;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
-    private BottomView bottomView;
+    private BottomNavigationBar bottomView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = ((TextView) findViewById(R.id.tv));
-        bottomView = ((BottomView) findViewById(R.id.BottomLayout));
+        bottomView = ((BottomNavigationBar) findViewById(R.id.BottomLayout));
         bottomView.setMsgCount(0,32);
         bottomView.setMsgCount(4,111);
         bottomView.setMsgCount(3,1);
         bottomView.setMsgCount(1,-1);
-        bottomView.setOnItemSelectedListener(new BottomView.OnItemSelectedListener() {
+        bottomView.setOnItemSelectedListener(new BottomNavigationBar.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(BottomView.Item item, int position) {
+            public void onItemSelected(BottomNavigationBar.Item item, int position) {
                 textView.setText(item.getTitle());
             }
         });

@@ -1,6 +1,6 @@
 
 
-# BottomNavigationBar 使用说明
+# [BottomNavigationBar](https://github.com/onestravel/BottomNavigationBar) 使用说明
 
 ## 简介：
 
