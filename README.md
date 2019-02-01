@@ -22,6 +22,8 @@
 
 ## 引入方法
 
+[![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+
 #### gradle
 
 - 在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
