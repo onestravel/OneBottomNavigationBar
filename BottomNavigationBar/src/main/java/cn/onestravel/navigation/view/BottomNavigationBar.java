@@ -15,6 +15,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.MenuRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
@@ -40,27 +41,42 @@ import cn.onestravel.navigation.utils.DensityUtils;
 /**
  * @author onestravel
  * @createTime 2019/1/20 9:48 AM
- * @description TODO
+ * @description 可以凸起的底部导航菜单VIEW
  */
 public class BottomNavigationBar extends View {
-    private String TAG = "BottomView";
-    private int drawableId = 0;
+    private String TAG = "BottomNavigationBar";
+    // 导航菜单键列表
     private List<Item> itemList = new ArrayList<>();
+    //总宽度 width
     private int mWidth = 0;
+    //总高度 height
     private int mHeight = 0;
+    //每个菜单的宽度 item width
     private int mItemWidth = 0;
+    //每个菜单的告诉 item height
     private int mItemHeight = 0;
+    //整体的上边距
     private int topPadding = DensityUtils.dpToPx(getResources(), 3);
+    //整体下边距
     private int bottomPadding = DensityUtils.dpToPx(getResources(), 3);
+    //文字相对于图标的边距
     private int textTop = DensityUtils.dpToPx(getResources(), 3);
+    //画笔
     private Paint mPaint;
+    //图标的状态颜色列表
     private ColorStateList itemIconTintRes;
+    //文字的状态颜色列表
     private ColorStateList itemColorStateList;
+    //Item菜单的选中事件
     private OnItemSelectedListener onItemSelectedListener;
+    // 当前选中的坐标位置
     private int checkedPosition = 0;
-    private int floatingUp;
-    private Drawable background;
+    //是否开启上浮
     private boolean floatingEnable;
+    //上浮距离
+    private int floatingUp;
+    //背景资源
+    private Drawable background;
 
     public BottomNavigationBar(Context context) {
         super(context);
@@ -77,6 +93,132 @@ public class BottomNavigationBar extends View {
         init(context, attrs, defStyleAttr);
     }
 
+
+    /**
+     * 设置选中的监听事件
+     *
+     * @param onItemSelectedListener
+     */
+    public void setOnItemSelectedListener(OnItemSelectedListener onItemSelectedListener) {
+        this.onItemSelectedListener = onItemSelectedListener;
+    }
+
+    /**
+     * 设置选中
+     *
+     * @param position 选中位置
+     */
+    public void setSelected(int position) {
+        Item item = itemList.get(position);
+        if (item.checkable) {
+            if (checkedPosition >= 0) {
+                itemList.get(checkedPosition).checked = false;
+            }
+            item.checked = true;
+            checkedPosition = position;
+        }
+        if (onItemSelectedListener != null) {
+            onItemSelectedListener.onItemSelected(itemList.get(position), position);
+        }
+        postInvalidate();
+    }
+
+    /**
+     * 设置未读消息数
+     *
+     * @param position 未读消息数的位置
+     * @param count    未读消息数量 <0 是显示为小红点，没有数字
+     *                 == 0  时不显示未读消息红点
+     *                 >0 && <100 时显示对应的消息数量
+     *                 >=100 时显示 99+
+     */
+    public void setMsgCount(int position, int count) {
+        if (position < itemList.size()) {
+            itemList.get(position).msgCount = count;
+            postInvalidate();
+        }
+    }
+
+
+    /**
+     * 设置Menu 菜单资源文件
+     *
+     * @param menuRes
+     */
+    public void setMenu(@MenuRes int menuRes) {
+        parseXml(menuRes);
+        format();
+        postInvalidate();
+    }
+
+    /**
+     * 设置Item 菜单的图标颜色状态列表
+     *
+     * @param itemIconTintRes
+     */
+    public void setItemIconTint(ColorStateList itemIconTintRes) {
+        this.itemIconTintRes = itemIconTintRes;
+    }
+
+    /**
+     * 设置Item 菜单的文字颜色状态列表
+     *
+     * @param itemColorStateList
+     */
+    public void setItemColorStateList(ColorStateList itemColorStateList) {
+        this.itemColorStateList = itemColorStateList;
+    }
+
+    /**
+     * 设置是否开启浮动
+     *
+     * @param floatingEnable
+     */
+    public void setFloatingEnable(boolean floatingEnable) {
+        this.floatingEnable = floatingEnable;
+    }
+
+    /**
+     * 设置上浮距离，不能超过导航栏高度的1/2
+     *
+     * @param floatingUp
+     */
+    public void setFloatingUp(int floatingUp) {
+        this.floatingUp = floatingUp;
+    }
+
+
+    /**
+     * 获取布局参数
+     *
+     * @return
+     */
+    @Override
+    public ViewGroup.LayoutParams getLayoutParams() {
+        ViewGroup.LayoutParams params = super.getLayoutParams();
+        return params;
+    }
+
+    /**
+     * 设置布局参数
+     *
+     * @param params
+     */
+    @Override
+    public void setLayoutParams(ViewGroup.LayoutParams params) {
+        floatingUp = floatingUp > params.height / 2 ? params.height / 2 : floatingUp;
+        if (params instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        } else if (params instanceof RelativeLayout.LayoutParams) {
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        } else if (params instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) params;
+            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
+        }
+        super.setLayoutParams(params);
+    }
 
     /**
      * 初始化，获取该View的自定义属性，以及item 列表
@@ -104,6 +246,13 @@ public class BottomNavigationBar extends View {
             int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
             parseXml(xmlRes);
         }
+        format();
+    }
+
+    /**
+     * 处理数据
+     */
+    private void format() {
         if (itemList.size() > 5) {
             itemList = itemList.subList(0, 5);
         }
@@ -120,8 +269,11 @@ public class BottomNavigationBar extends View {
      * @param xmlRes
      */
     private void parseXml(int xmlRes) {
-        XmlResourceParser xmlParser = getResources().getXml(xmlRes);
         try {
+            if(xmlRes==0){
+                return;
+            }
+            XmlResourceParser xmlParser = getResources().getXml(xmlRes);
             int event = xmlParser.getEventType();   //先获取当前解析器光标在哪
             while (event != XmlPullParser.END_DOCUMENT) {    //如果还没到文档的结束标志，那么就继续往下处理
                 switch (event) {
@@ -140,7 +292,7 @@ public class BottomNavigationBar extends View {
                                 if ("id".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
                                     item.id = xmlParser.getAttributeResourceValue(i, 0);
                                 } else if ("icon".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
-                                    drawableId = xmlParser.getAttributeResourceValue(i, 0);
+                                    int drawableId = xmlParser.getAttributeResourceValue(i, 0);
                                     Drawable drawable = ResourcesCompat.getDrawable(getResources(), drawableId, null);
                                     item.drawable = drawable.getConstantState().newDrawable();
                                     StateListDrawable stateListDrawable = new StateListDrawable();
@@ -152,7 +304,7 @@ public class BottomNavigationBar extends View {
                                         Drawable selectedDrawable = tintListDrawable(drawable, itemIconTintRes);
                                         selectedDrawable.setState(new int[]{android.R.attr.state_checked});
                                         stateListDrawable.addState(new int[]{android.R.attr.state_checked}, selectedDrawable.getCurrent());
-                                        stateListDrawable.addState(new int[]{android.R.attr.state_selected},selectedDrawable.getCurrent());
+                                        stateListDrawable.addState(new int[]{android.R.attr.state_selected}, selectedDrawable.getCurrent());
                                         stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, selectedDrawable.getCurrent());
                                         stateListDrawable.addState(new int[]{android.R.attr.state_focused}, selectedDrawable.getCurrent());
                                         selectedDrawable.setState(new int[]{});
@@ -169,7 +321,7 @@ public class BottomNavigationBar extends View {
                                     item.checkable = xmlParser.getAttributeBooleanValue(i, false);
                                 }
                             }
-                            if(item.checkable&&item.checked){
+                            if (item.checkable && item.checked) {
                                 checkedPosition = itemList.size();
                             }
                             itemList.add(item);
@@ -194,12 +346,27 @@ public class BottomNavigationBar extends View {
     }
 
 
+    /**
+     * 当初始化布局以后，进行默认选中
+     *
+     * @param changed
+     * @param left
+     * @param top
+     * @param right
+     * @param bottom
+     */
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         setSelected(checkedPosition);
     }
 
+    /**
+     * 尺寸测量
+     *
+     * @param widthMeasureSpec
+     * @param heightMeasureSpec
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         mWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -213,28 +380,11 @@ public class BottomNavigationBar extends View {
     }
 
 
-    @Override
-    public ViewGroup.LayoutParams getLayoutParams() {
-        ViewGroup.LayoutParams params = super.getLayoutParams();
-        return params;
-    }
-
-    @Override
-    public void setLayoutParams(ViewGroup.LayoutParams params) {
-        floatingUp = floatingUp > params.height / 2 ? params.height / 2 : floatingUp;
-        if (params instanceof LinearLayout.LayoutParams) {
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) params;
-            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
-        } else if (params instanceof RelativeLayout.LayoutParams) {
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) params;
-            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
-        } else if (params instanceof FrameLayout.LayoutParams) {
-            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) params;
-            layoutParams.topMargin = layoutParams.topMargin - floatingUp;
-        }
-        super.setLayoutParams(params);
-    }
-
+    /**
+     * 进行绘制
+     *
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -243,6 +393,7 @@ public class BottomNavigationBar extends View {
         background.draw(canvas);
         //画Floating
         drawFloating(canvas);
+        //画出所有导航菜单
         if (itemList.size() > 0) {
             for (int i = 0; i < itemList.size(); i++) {
                 Item item = itemList.get(i);
@@ -252,6 +403,11 @@ public class BottomNavigationBar extends View {
 
     }
 
+    /**
+     * 画出上浮图标的背景
+     *
+     * @param canvas
+     */
     private void drawFloating(Canvas canvas) {
         if (itemList.size() > 0) {
             for (int i = 0; i < itemList.size(); i++) {
@@ -286,6 +442,8 @@ public class BottomNavigationBar extends View {
     }
 
     /**
+     * 画出每一个Item导航菜单
+     *
      * @param canvas
      * @param item
      */
@@ -318,12 +476,6 @@ public class BottomNavigationBar extends View {
             canvas.drawText(item.title, position * mItemWidth + getPaddingLeft() + mItemWidth / 2, textY, mPaint);
         }
         if (item.icon != null) {
-//            Bitmap bitmap = item.icon;
-////            Rect src = new Rect();
-////            src.left = 0;
-////            src.top = 0;
-////            src.right = item.icon.getWidth();
-////            src.bottom = item.icon.getHeight();
             Rect to = new Rect();
             to.left = getPaddingLeft() + position * mItemWidth + (mItemWidth - width) / 2;
             to.top = startTop;
@@ -332,13 +484,6 @@ public class BottomNavigationBar extends View {
             if (!item.floating) {
                 to.bottom = (int) (topPadding + height + floatingUp);
             }
-////            Paint paint = new Paint();
-////
-////            if (itemIconTintRes != null) {
-////                int pColor = item.checked ? itemIconTintRes.getColorForState(new int[]{android.R.attr.state_checked}, itemIconTintRes.getDefaultColor()) : itemIconTintRes.getDefaultColor();
-////                paint.setColorFilter(new PorterDuffColorFilter(pColor, PorterDuff.Mode.MULTIPLY));
-////            }
-////            canvas.drawBitmap(item.icon, src, to, paint);
             Drawable drawable;
             if (item.checkable) {
                 if (item.checked) {
@@ -392,27 +537,14 @@ public class BottomNavigationBar extends View {
         }
     }
 
-    public void setOnItemSelectedListener(OnItemSelectedListener onItemSelectedListener) {
-        this.onItemSelectedListener = onItemSelectedListener;
-    }
 
-    public static Bitmap tintBitmap(Bitmap inBitmap, int tintColor) {
-        if (inBitmap == null) {
-            return null;
-        }
-        Bitmap outBitmap = Bitmap.createBitmap(inBitmap.getWidth(), inBitmap.getHeight(), inBitmap.getConfig());
-        Canvas canvas = new Canvas(outBitmap);
-        Paint paint = new Paint();
-//        paint.setColorFilter( new PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)) ;
-//        canvas.drawBitmap(inBitmap , 0, 0, paint) ;
-        //从原位图中提取只包含alpha的位图
-        Bitmap alphaBitmap = inBitmap.extractAlpha();
-        //在画布上（mAlphaBitmap）绘制alpha位图
-        canvas.drawBitmap(alphaBitmap, 0, 0, paint);
-
-        return outBitmap;
-    }
-
+    /**
+     * 创建文字类型的画笔
+     *
+     * @param textSize  文字大小
+     * @param textColor 文字颜色
+     * @return
+     */
     private Paint createTextPaint(int textSize, int textColor) {
         if (mPaint == null) {
             mPaint = new Paint();
@@ -426,6 +558,12 @@ public class BottomNavigationBar extends View {
         return mPaint;
     }
 
+    /**
+     * 创建图形的画笔
+     *
+     * @param color 画笔颜色
+     * @return
+     */
     private Paint createPaint(int color) {
         Paint mPaint = new Paint();
         mPaint.setColor(color);
@@ -436,30 +574,30 @@ public class BottomNavigationBar extends View {
     }
 
 
+    /**
+     * 获取文字宽度
+     *
+     * @param text  文字
+     * @param paint 画笔
+     * @return
+     */
     private int getTextWidth(String text, Paint paint) {
         Rect rect = new Rect(); // 文字所在区域的矩形
         paint.getTextBounds(text, 0, text.length(), rect);
         return rect.width();
     }
 
+    /**
+     * 获取文字高度
+     *
+     * @param text  文字
+     * @param paint 画笔
+     * @return
+     */
     private int getTextHeight(String text, Paint paint) {
         Rect rect = new Rect();
         paint.getTextBounds(text, 0, text.length(), rect);
         return rect.height();
-    }
-
-    /**
-     * 更改图片颜色
-     *
-     * @param drawable
-     * @param color
-     * @return
-     */
-    public Drawable tintDrawable(Drawable drawable, int color) {
-        Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
-//        DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY);
-        DrawableCompat.setTint(wrappedDrawable, color);
-        return wrappedDrawable;
     }
 
 
@@ -477,6 +615,12 @@ public class BottomNavigationBar extends View {
         return wrappedDrawable;
     }
 
+    /**
+     * 触摸事件监听
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         double x = (double) event.getRawX();
@@ -526,27 +670,6 @@ public class BottomNavigationBar extends View {
         return super.onTouchEvent(event);
     }
 
-    public void setSelected(int position) {
-        Item item = itemList.get(position);
-        if (item.checkable) {
-            if (checkedPosition >= 0) {
-                itemList.get(checkedPosition).checked = false;
-            }
-            item.checked = true;
-            checkedPosition = position;
-        }
-        if (onItemSelectedListener != null) {
-            onItemSelectedListener.onItemSelected(itemList.get(position), position);
-        }
-    }
-
-    public void setMsgCount(int position, int count) {
-        if (position < itemList.size()) {
-            itemList.get(position).msgCount = count;
-            postInvalidate();
-        }
-    }
-
 
     /**
      * 判断触摸位置是否在圆形内部
@@ -573,10 +696,16 @@ public class BottomNavigationBar extends View {
         return true;
     }
 
+    /**
+     * 选中监听事件的接口
+     */
     public interface OnItemSelectedListener {
         void onItemSelected(Item item, int position);
     }
 
+    /**
+     * 导航菜单Item 的实体
+     */
     public class Item {
         private int id;
         private StateListDrawable icon;
