@@ -22,7 +22,7 @@
 
 ## 引入方法
 
-[![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+TAG:[![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
 
 #### gradle
 
@@ -43,7 +43,7 @@
 
 ```
 dependencies {
-implementation 'com.github.onestravel:BottomNavigationBar:1.0.2'
+implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 }
 
 ```
@@ -67,7 +67,7 @@ implementation 'com.github.onestravel:BottomNavigationBar:1.0.2'
 	<dependency>
 	    <groupId>com.github.onestravel</groupId>
 	    <artifactId>BottomNavigationBar</artifactId>
-	    <version>1.0.2</version>
+	    <version>TAG</version>
 	</dependency>
 
 ```
