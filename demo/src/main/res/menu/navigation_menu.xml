@@ -13,11 +13,8 @@
         android:title="联系人"></item>
     <item
         android:id="@+id/tab5"
-        android:icon="@drawable/tab_manage_selected"
-        android:title="拍照"
-        app:floating="true"
-        android:checked="true"
-        android:checkable="false"></item>
+        android:icon="@drawable/tab_manage_normal"
+        android:title="拍照"></item>
     <item
         android:id="@+id/tab3"
         android:icon="@drawable/bar_invite"
