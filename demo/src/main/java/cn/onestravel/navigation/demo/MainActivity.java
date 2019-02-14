@@ -1,5 +1,6 @@
 package cn.onestravel.navigation.demo;
 
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
         textView = ((TextView) findViewById(R.id.tv));
         bottomView = ((BottomNavigationBar) findViewById(R.id.BottomLayout));
         bottomView.setMenu(R.menu.navigation_menu);
+        bottomView.setFloatingEnable(false);
+        bottomView.setItemIconTint(R.drawable.item_check);
+        bottomView.setItemColorStateList(R.drawable.item_check);
         bottomView.setMsgCount(0,32);
         bottomView.setMsgCount(4,111);
         bottomView.setMsgCount(3,1);

@@ -22,7 +22,7 @@
 
 ## 引入方法
 
-TAG:[![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+TAG:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
 
 #### gradle
 

@@ -15,6 +15,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.MenuRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -77,6 +79,8 @@ public class BottomNavigationBar extends View {
     private int floatingUp;
     //背景资源
     private Drawable background;
+    //菜单的布局文件
+    private @MenuRes int menuRes;
 
     public BottomNavigationBar(Context context) {
         super(context);
@@ -146,6 +150,7 @@ public class BottomNavigationBar extends View {
      * @param menuRes
      */
     public void setMenu(@MenuRes int menuRes) {
+        this.menuRes = menuRes;
         parseXml(menuRes);
         format();
         postInvalidate();
@@ -154,19 +159,23 @@ public class BottomNavigationBar extends View {
     /**
      * 设置Item 菜单的图标颜色状态列表
      *
-     * @param itemIconTintRes
+     * @param resId 图标颜色状态的资源文件
      */
-    public void setItemIconTint(ColorStateList itemIconTintRes) {
-        this.itemIconTintRes = itemIconTintRes;
+    public void setItemIconTint(@DrawableRes @ColorRes int resId) {
+        this.itemIconTintRes = ResourcesCompat.getColorStateList(getResources(), resId, null);
+        parseXml(menuRes);
+        format();
+        postInvalidate();
     }
 
     /**
      * 设置Item 菜单的文字颜色状态列表
      *
-     * @param itemColorStateList
+     * @param resId 文字颜色状态的资源文件
      */
-    public void setItemColorStateList(ColorStateList itemColorStateList) {
-        this.itemColorStateList = itemColorStateList;
+    public void setItemColorStateList(@DrawableRes @ColorRes int resId) {
+        this.itemColorStateList =  ResourcesCompat.getColorStateList(getResources(), resId, null);
+        postInvalidate();
     }
 
     /**
@@ -176,6 +185,7 @@ public class BottomNavigationBar extends View {
      */
     public void setFloatingEnable(boolean floatingEnable) {
         this.floatingEnable = floatingEnable;
+        postInvalidate();
     }
 
     /**
@@ -185,6 +195,7 @@ public class BottomNavigationBar extends View {
      */
     public void setFloatingUp(int floatingUp) {
         this.floatingUp = floatingUp;
+        postInvalidate();
     }
 
 
@@ -270,7 +281,7 @@ public class BottomNavigationBar extends View {
      */
     private void parseXml(int xmlRes) {
         try {
-            if(xmlRes==0){
+            if (xmlRes == 0) {
                 return;
             }
             XmlResourceParser xmlParser = getResources().getXml(xmlRes);
@@ -374,7 +385,9 @@ public class BottomNavigationBar extends View {
         mItemWidth = (mWidth - getPaddingLeft() - getPaddingRight()) / itemList.size();
         topPadding = getPaddingTop();
         bottomPadding = getPaddingBottom();
-        mHeight += floatingUp;
+        if (floatingEnable) {
+            mHeight += floatingUp;
+        }
         mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.getMode(heightMeasureSpec)));
     }
@@ -388,6 +401,9 @@ public class BottomNavigationBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (!floatingEnable) {
+            floatingUp = 0;
+        }
         //画背景
         background.setBounds(0, floatingUp, mWidth, mHeight);
         background.draw(canvas);
@@ -631,9 +647,11 @@ public class BottomNavigationBar extends View {
         int locationY = location[1];
         y = y - locationY;
         int action = event.getAction();
+        Log.e(TAG, "action = " + action);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                break;
+                return true;
+//                break;
             case MotionEvent.ACTION_MOVE:
                 break;
             case MotionEvent.ACTION_UP:
