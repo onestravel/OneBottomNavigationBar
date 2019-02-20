@@ -195,3 +195,5 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 </menu>
 ```
 
+＃温馨提示：
+**在使用过程中，如遇到任何问题，可发送邮件至 server@onestravel.cn 说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**
