@@ -9,11 +9,11 @@
     <item
         android:id="@+id/tab2"
         android:icon="@drawable/bar_constact"
-
         android:title="联系人"></item>
     <item
         android:id="@+id/tab5"
         android:icon="@drawable/tab_manage_normal"
+        app:floating="true"
         android:title="拍照"></item>
     <item
         android:id="@+id/tab3"

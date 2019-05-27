@@ -6,13 +6,19 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.annotation.ColorRes;
@@ -23,6 +29,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +46,8 @@ import java.util.List;
 
 import cn.onestravel.navigation.R;
 import cn.onestravel.navigation.utils.DensityUtils;
+
+import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 
 /**
  * @author onestravel
@@ -76,11 +85,13 @@ public class BottomNavigationBar extends View {
     //是否开启上浮
     private boolean floatingEnable;
     //上浮距离
+    private int floatingUpInit;
     private int floatingUp;
     //背景资源
     private Drawable background;
     //菜单的布局文件
-    private @MenuRes int menuRes;
+    private @MenuRes
+    int menuRes;
 
     public BottomNavigationBar(Context context) {
         super(context);
@@ -174,7 +185,7 @@ public class BottomNavigationBar extends View {
      * @param resId 文字颜色状态的资源文件
      */
     public void setItemColorStateList(@DrawableRes @ColorRes int resId) {
-        this.itemColorStateList =  ResourcesCompat.getColorStateList(getResources(), resId, null);
+        this.itemColorStateList = ResourcesCompat.getColorStateList(getResources(), resId, null);
         postInvalidate();
     }
 
@@ -251,9 +262,7 @@ public class BottomNavigationBar extends View {
                 itemColorStateList = ResourcesCompat.getColorStateList(getResources(), R.drawable.default_blue_tab_tint, null);
             }
             floatingEnable = ta.getBoolean(R.styleable.StyleBottomLayout_floatingEnable, false);
-            if (floatingEnable) {
-                floatingUp = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
-            }
+            floatingUp = floatingUpInit = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
             int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
             parseXml(xmlRes);
         }
@@ -269,9 +278,14 @@ public class BottomNavigationBar extends View {
         }
         if (getBackground() != null && getBackground() instanceof ColorDrawable) {
             background = getBackground();
+        } else if (getBackground() instanceof StateListDrawable) {
+            background =  getBackground();
+        } else if (getBackground() instanceof GradientDrawable) {
+            background = getBackground();
         } else {
             background = new ColorDrawable(Color.WHITE);
         }
+//setBackgroundColor(Color.TRANSPARENT);
     }
 
     /**
@@ -385,9 +399,8 @@ public class BottomNavigationBar extends View {
         mItemWidth = (mWidth - getPaddingLeft() - getPaddingRight()) / itemList.size();
         topPadding = getPaddingTop();
         bottomPadding = getPaddingBottom();
-        if (floatingEnable) {
-            mHeight += floatingUp;
-        }
+        mHeight += floatingUpInit;
+        topPadding = getPaddingTop() + floatingUpInit;
         mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.getMode(heightMeasureSpec)));
     }
@@ -403,10 +416,17 @@ public class BottomNavigationBar extends View {
         super.onDraw(canvas);
         if (!floatingEnable) {
             floatingUp = 0;
+        } else {
+            floatingUp = floatingUpInit;
         }
+        Bitmap bitmap = drawable2Bitmap(background);
+        canvas.drawBitmap(bitmap,0,floatingUpInit,mPaint);
+        Rect rectInit = new Rect();
+        rectInit.set(0, floatingUpInit, mWidth, mHeight);
         //画背景
-        background.setBounds(0, floatingUp, mWidth, mHeight);
+        background.setBounds(rectInit);
         background.draw(canvas);
+
         //画Floating
         drawFloating(canvas);
         //画出所有导航菜单
@@ -425,6 +445,9 @@ public class BottomNavigationBar extends View {
      * @param canvas
      */
     private void drawFloating(Canvas canvas) {
+        if (!floatingEnable) {
+            return;
+        }
         if (itemList.size() > 0) {
             for (int i = 0; i < itemList.size(); i++) {
                 Item item = itemList.get(i);
@@ -473,11 +496,11 @@ public class BottomNavigationBar extends View {
         int height = mItemHeight - topPadding - bottomPadding;
         int startTop = 0;
         if (!item.floating) {
-            startTop = topPadding + floatingUp;
-            width = width - floatingUp;
-            height = height - floatingUp;
-        } else {
             startTop = topPadding;
+        } else {
+            startTop = topPadding - floatingUp;
+            width = width + floatingUp;
+            height = height + floatingUp;
         }
         if (!TextUtils.isEmpty(item.title)) {
             int color = item.checked ? itemColorStateList.getColorForState(new int[]{android.R.attr.state_checked}, itemColorStateList.getDefaultColor()) : itemColorStateList.getDefaultColor();
@@ -497,8 +520,8 @@ public class BottomNavigationBar extends View {
             to.top = startTop;
             to.right = to.left + width;
             to.bottom = topPadding + height;
-            if (!item.floating) {
-                to.bottom = (int) (topPadding + height + floatingUp);
+            if (item.floating) {
+                to.bottom = (int) (topPadding + height - floatingUp);
             }
             Drawable drawable;
             if (item.checkable) {
@@ -757,6 +780,36 @@ public class BottomNavigationBar extends View {
 
         public int getMsgCount() {
             return msgCount;
+        }
+    }
+
+
+    Bitmap drawable2Bitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof NinePatchDrawable) {
+            Bitmap bitmap = Bitmap
+                    .createBitmap(
+                            drawable.getIntrinsicWidth(),
+                            drawable.getIntrinsicHeight(),
+                            drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                                    : Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        } else {
+            Bitmap bitmap;
+            if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+                bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+            } else {
+                bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            }
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
         }
     }
 }

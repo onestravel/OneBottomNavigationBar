@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.onestravel.bottomview.demo.R;
+import cn.onestravel.navigation.utils.DensityUtils;
 import cn.onestravel.navigation.utils.EventUtils;
 import cn.onestravel.navigation.view.BottomNavigationBar;
 
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         textView = ((TextView) findViewById(R.id.tv));
         bottomView = ((BottomNavigationBar) findViewById(R.id.BottomLayout));
         bottomView.setMenu(R.menu.navigation_menu);
-        bottomView.setFloatingEnable(false);
+//        bottomView.setFloatingEnable(false);
         bottomView.setItemIconTint(R.drawable.item_check);
         bottomView.setItemColorStateList(R.drawable.item_check);
         bottomView.setMsgCount(0,32);
@@ -38,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(BottomNavigationBar.Item item, int position) {
                 textView.setText(item.getTitle());
+                if(position==2){
+                    bottomView.setFloatingEnable(true);
+//                    bottomView.setFloatingUp(DensityUtils.dpToPx(getApplication(),20));
+                }else {
+                    bottomView.setFloatingEnable(false);
+//                    bottomView.setFloatingUp(DensityUtils.dpToPx(getApplication(),0));
+                }
             }
         });
     }
