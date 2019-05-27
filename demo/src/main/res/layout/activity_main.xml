@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:orientation="vertical"
+    android:background="@android:color/holo_orange_dark"
     tools:context="cn.onestravel.navigation.demo.MainActivity">
 
     <TextView
@@ -24,8 +25,11 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/white"
+        android:background="@drawable/bg_navigation"
         android:paddingTop="5dp"
+        app:floatingEnable="false"
+        app:floatingUp="20dp"
+        app:menu="@menu/navigation_menu"
         android:paddingBottom="5dp">
 
     </cn.onestravel.navigation.view.BottomNavigationBar>
