@@ -85,6 +85,10 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 | app:floatingEnable | true/false             | 是否开启浮动，默认为false，设置为true是，可以实现中间凸起    |
 | app:floatingUp     | 20dp                   | 设置Tab的上浮尺寸，比如：上浮20dp，上浮尺寸不可超过整个菜单高度的1/2 |
 | app:menu           | @menu/botom_menu       | BottomNavigationBar导航栏的关键，设置导航栏的tab菜单                  |
+| app:itemTextSize   | 15sp       | 设置导航栏文字的大小                 |
+| app:itemIconWidth   | 30dp       | 设置导航栏Icon的宽度                 |
+| app:temIconHeight   | 30dp       | 设置导航栏Icon的高度                |
+| app:itemTextTopMargin   | 5dp       | 置导航栏文字和Icon的间隔高度                  |
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
 
@@ -194,6 +198,22 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
         android:title="我的"></item>
 </menu>
 ```
+
+### 版本更新说明
+
+#### 1.0.2
+- 初版实现自定义底部导航栏
+
+#### 1.0.3
+- 在原基础上对封装进行优化，支持代码实现导航栏
+
+#### 1.0.4
+- 优化选中突出效果，支持选中放大，支持导航栏背景圆角
+
+#### 1.0.5
+- 可以自定义导航栏文字大小
+- 可以自定义图标的宽度和高度
+- 自定义图标和文字间隔高度
 
 # 温馨提示：
 **在使用过程中，如遇到任何问题，可发送邮件至server@onestravel.cn说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**#

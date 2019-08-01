@@ -92,6 +92,9 @@ public class BottomNavigationBar extends View {
     //菜单的布局文件
     private @MenuRes
     int menuRes;
+    private int titleSize;
+    private int itemIconWidth;
+    private int itemIconHeight;
 
     public BottomNavigationBar(Context context) {
         super(context);
@@ -263,6 +266,10 @@ public class BottomNavigationBar extends View {
             }
             floatingEnable = ta.getBoolean(R.styleable.StyleBottomLayout_floatingEnable, false);
             floatingUp = floatingUpInit = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
+            titleSize = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemTextSize, DensityUtils.spToPx(getResources(), 14));
+            textTop = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemTextTopMargin, DensityUtils.dpToPx(getResources(), 3));
+            itemIconWidth = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemIconWidth, 0);
+            itemIconHeight = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemIconHeight, 0);
             int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
             parseXml(xmlRes);
         }
@@ -279,7 +286,7 @@ public class BottomNavigationBar extends View {
         if (getBackground() != null && getBackground() instanceof ColorDrawable) {
             background = getBackground();
         } else if (getBackground() instanceof StateListDrawable) {
-            background =  getBackground();
+            background = getBackground();
         } else if (getBackground() instanceof GradientDrawable) {
             background = getBackground();
         } else {
@@ -349,6 +356,9 @@ public class BottomNavigationBar extends View {
                             if (item.checkable && item.checked) {
                                 checkedPosition = itemList.size();
                             }
+                            item.titleSize = titleSize;
+                            item.iconWidth = itemIconWidth;
+                            item.iconHeight = itemIconHeight;
                             itemList.add(item);
                         }
                         break;
@@ -394,11 +404,19 @@ public class BottomNavigationBar extends View {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int specMode = MeasureSpec.getMode(heightMeasureSpec);
         mWidth = MeasureSpec.getSize(widthMeasureSpec);
-        mHeight = MeasureSpec.getSize(heightMeasureSpec);
         mItemWidth = (mWidth - getPaddingLeft() - getPaddingRight()) / itemList.size();
         topPadding = getPaddingTop();
         bottomPadding = getPaddingBottom();
+        if (specMode == MeasureSpec.AT_MOST) {
+            createTextPaint(titleSize, Color.BLACK);
+            int iconHeight = itemIconHeight>50?itemIconHeight:50;
+            int textHeight = getTextHeight("首页", mPaint);
+            mHeight = topPadding+bottomPadding+iconHeight+textHeight+textTop;
+        } else {
+            mHeight = MeasureSpec.getSize(heightMeasureSpec);
+        }
         mHeight += floatingUpInit;
         topPadding = getPaddingTop() + floatingUpInit;
         mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
@@ -420,7 +438,7 @@ public class BottomNavigationBar extends View {
             floatingUp = floatingUpInit;
         }
         Bitmap bitmap = drawable2Bitmap(background);
-        canvas.drawBitmap(bitmap,0,floatingUpInit,mPaint);
+        canvas.drawBitmap(bitmap, 0, floatingUpInit, mPaint);
         Rect rectInit = new Rect();
         rectInit.set(0, floatingUpInit, mWidth, mHeight);
         //画背景
@@ -510,7 +528,6 @@ public class BottomNavigationBar extends View {
             createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 14) : item.titleSize, color);
             int textHeight = getTextHeight(item.title, mPaint);
             int textY = startTop + height - textHeight / 4;//上边距+图片文字内容高度
-            int w = textY - textHeight / 2 - topPadding;
             width = height = height - textHeight - textTop;
             canvas.drawText(item.title, position * mItemWidth + getPaddingLeft() + mItemWidth / 2, textY, mPaint);
         }
@@ -543,12 +560,12 @@ public class BottomNavigationBar extends View {
             int y = 0;
             int r = 0;
             if (item.msgCount > 0) {
-                createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 9) : item.titleSize, Color.WHITE);
+                createTextPaint(DensityUtils.dpToPx(getResources(), 9), Color.WHITE);
                 r = getTextWidth("99+", mPaint) / 2 + 1;
                 String count = "";
                 if (item.msgCount > 99) {
                     count = "99+";
-                    createTextPaint(item.titleSize == 0 ? DensityUtils.dpToPx(getResources(), 8) : item.titleSize, Color.WHITE);
+                    createTextPaint(DensityUtils.dpToPx(getResources(), 8), Color.WHITE);
                 } else {
                     count = String.valueOf(item.msgCount);
                 }
@@ -753,6 +770,8 @@ public class BottomNavigationBar extends View {
         private Drawable drawable;
         private String title;
         private int titleSize;
+        private int iconWidth;
+        private int iconHeight;
         private boolean floating = false;
         private boolean checked = false;
         private boolean checkable = true;
@@ -801,7 +820,7 @@ public class BottomNavigationBar extends View {
             return bitmap;
         } else {
             Bitmap bitmap;
-            if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+            if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
                 bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
             } else {
                 bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);

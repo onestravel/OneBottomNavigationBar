@@ -2,7 +2,11 @@
 <resources>
     <declare-styleable name="StyleBottomLayout">
         <attr name="itemIconTint" format="reference"></attr>
+        <attr name="itemIconWidth" format="dimension"></attr>
+        <attr name="itemIconHeight" format="dimension"></attr>
         <attr name="itemTextColor" format="reference"></attr>
+        <attr name="itemTextSize" format="dimension"></attr>
+        <attr name="itemTextTopMargin" format="dimension"></attr>
         <attr name="floatingEnable" format="boolean">false</attr>
         <attr name="floatingUp" format="dimension"></attr>
         <attr name="menu" format="reference"></attr>

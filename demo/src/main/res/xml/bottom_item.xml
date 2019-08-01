@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item id="@+id/tab1" icon="@mipmap/ic_launcher"></item>
+    <item id="@+id/tab1" icon="@mipmap/ic_launcher">
+    </item>
     <item id="@+id/tab2" icon="@mipmap/ic_launcher"></item>
     <item id="@+id/tab3" icon="@mipmap/ic_launcher"></item>
     <item id="@+id/tab4" icon="@mipmap/ic_launcher"></item>

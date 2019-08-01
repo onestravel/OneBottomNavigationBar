@@ -23,13 +23,17 @@
     <cn.onestravel.navigation.view.BottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
         android:paddingTop="5dp"
         app:floatingEnable="false"
         app:floatingUp="20dp"
         app:menu="@menu/navigation_menu"
+        app:itemTextSize="16sp"
+        app:itemTextTopMargin="8dp"
+        app:itemIconWidth="30dp"
+        app:itemIconHeight="30dp"
         android:paddingBottom="5dp">
 
     </cn.onestravel.navigation.view.BottomNavigationBar>

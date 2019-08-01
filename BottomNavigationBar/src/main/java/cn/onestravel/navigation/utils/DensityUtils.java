@@ -61,4 +61,29 @@ public class DensityUtils {
         return (int) (pxValue / scale + 0.5f);
     }
 
+
+    /**
+     * sp转换为px
+     *
+     * @param resources
+     * @param spValue
+     * @return
+     */
+    public static int spToPx(Resources resources, float spValue) {
+        float scale = resources.getDisplayMetrics().scaledDensity;//获得当前屏幕密度
+        return (int) (spValue * scale + 0.5f);
+    }
+
+
+    /**
+     * px转换为sp
+     *
+     * @param resources
+     * @param pxValue
+     * @return
+     */
+    public static int pxToSp(Resources resources, float pxValue) {//
+        float scale = resources.getDisplayMetrics().scaledDensity;//获得当前屏幕密度
+        return (int) (pxValue / scale + 0.5f);
+    }
 }
