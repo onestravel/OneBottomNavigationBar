@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         mainFragment = ( findViewById(R.id.main_fragment));
         bottomView = ((BottomNavigationBar) findViewById(R.id.BottomLayout));
         bottomView.setMenu(R.menu.navigation_menu);
-//        bottomView.setFragmentManager(getFragmentManager(),mainFragment);
+        bottomView.setFragmentManager(getFragmentManager(),mainFragment);
         bottomView.addFragment(R.id.tab1,new FirstFragment());
         bottomView.addFragment(R.id.tab2,new SecondFragment());
         bottomView.addFragment(R.id.tab3,new ThirdFragment());
@@ -41,10 +41,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(BottomNavigationBar.Item item, int position) {
                 if(position==2){
                     bottomView.setFloatingEnable(true);
-//                    bottomView.setFloatingUp(DensityUtils.dpToPx(getApplication(),20));
                 }else {
                     bottomView.setFloatingEnable(false);
-//                    bottomView.setFloatingUp(DensityUtils.dpToPx(getApplication(),0));
                 }
             }
         });

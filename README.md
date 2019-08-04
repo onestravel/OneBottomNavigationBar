@@ -199,6 +199,33 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 </menu>
 ```
 
+### 设置点击切换监听
+**在NavigationBar的Tab进行切换时，会回调改方法，可进行相应处理，如：未读消息数设置**
+```
+        bottomView.setOnItemSelectedListener(new BottomNavigationBar.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(BottomNavigationBar.Item item, int position) {
+                        if(position==2){
+                            bottomView.setFloatingEnable(true);
+                        }else {
+                            bottomView.setFloatingEnable(false);
+                        }
+                    }
+                });
+```
+
+### 添加Fragment进行管理，点击自动切换
+**需要先设置FragmentManager管理器和加载Fragment的ViewGroup,一般为FrameLayout ,需要设置id;之后调用addFragment，为对应的Tab添加Fragment,**
+```
+        bottomView.setFragmentManager(getFragmentManager(),mainFragment);
+        bottomView.addFragment(R.id.tab1,new FirstFragment());
+        bottomView.addFragment(R.id.tab2,new SecondFragment());
+        bottomView.addFragment(R.id.tab3,new ThirdFragment());
+        bottomView.addFragment(R.id.tab4,new FourFragment());
+        bottomView.addFragment(R.id.tab5,new FiveFragment());
+```
+
+
 ### 版本更新说明
 
 #### 1.0.2
@@ -214,6 +241,12 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 - 可以自定义导航栏文字大小
 - 可以自定义图标的宽度和高度
 - 自定义图标和文字间隔高度
+
+#### 1.0.6
+- 可以Java Api 设置导航栏文字大小
+- 可以Java Api 设置图标的宽度和高度
+- Java Api 设置图标和文字间隔高度
+- 支持管理Fragment ,实现Fragment点击自动切换
 
 # 温馨提示：
 **在使用过程中，如遇到任何问题，可发送邮件至server@onestravel.cn说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**#
