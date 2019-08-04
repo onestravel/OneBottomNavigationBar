@@ -1,12 +1,14 @@
 package cn.onestravel.navigation.view;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,22 +16,23 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.annotation.ColorRes;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.MenuRes;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
+
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.MenuRes;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +45,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.onestravel.navigation.R;
 import cn.onestravel.navigation.utils.DensityUtils;
-
-import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 
 /**
  * @author onestravel
@@ -95,6 +98,11 @@ public class BottomNavigationBar extends View {
     private int titleSize;
     private int itemIconWidth;
     private int itemIconHeight;
+    private Map<Integer, Fragment> fragmentMap;
+    private FragmentManager manager;
+    private View containerView;
+    private Fragment currentFragment;
+    private boolean isReplace;
 
     public BottomNavigationBar(Context context) {
         super(context);
@@ -135,10 +143,32 @@ public class BottomNavigationBar extends View {
             item.checked = true;
             checkedPosition = position;
         }
-        if (onItemSelectedListener != null) {
-            onItemSelectedListener.onItemSelected(itemList.get(position), position);
-        }
         postInvalidate();
+        if (onItemSelectedListener != null) {
+            onItemSelectedListener.onItemSelected(item, position);
+        }
+        try {
+            if (manager == null) {
+                throw new RuntimeException("FragmentManager is null,please use setFragmentManager(getFragmentManager(),fragmentContainerView) in Activity");
+            }
+            if (containerView == null) {
+                throw new RuntimeException("fragmentContainerView is null,please use setFragmentManager(getFragmentManager(),fragmentContainerView) set Fragment's ContainerView");
+            }
+            if (!(containerView instanceof ViewGroup)) {
+                throw new RuntimeException("fragmentContainerView is not viewGroup ");
+            }
+            if (containerView.getId() == NO_ID) {
+                throw new RuntimeException("fragmentContainerView not id");
+            }
+            Fragment fragment = fragmentMap.get(item.id);
+            if (fragment == null) {
+                throw new RuntimeException("[" + item.id + "] fragment is null ");
+            }
+            selectFragment(fragment);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -212,6 +242,44 @@ public class BottomNavigationBar extends View {
         postInvalidate();
     }
 
+    /**
+     * 是否替换Fragment,替换后Fragment 数据会清空
+     *
+     * @return
+     */
+    public boolean isReplace() {
+        return isReplace;
+    }
+
+    /**
+     * 设置是否替换Fragment,替换后Fragment 数据会清空
+     *
+     * @param replace
+     */
+    public void setReplace(boolean replace) {
+        isReplace = replace;
+    }
+
+    /**
+     * 设置FragmentManager，管理fragment
+     *
+     * @param fragmentManager       fragment管理
+     * @param fragmentContainerView fragment 将要添加的view
+     */
+    public void setFragmentManager(FragmentManager fragmentManager, View fragmentContainerView) {
+        this.manager = fragmentManager;
+        this.containerView = fragmentContainerView;
+    }
+
+    /**
+     * 添加Fragment
+     *
+     * @param tabId
+     * @param fragment
+     */
+    public void addFragment(@IdRes int tabId, Fragment fragment) {
+        fragmentMap.put(tabId, fragment);
+    }
 
     /**
      * 获取布局参数
@@ -222,6 +290,40 @@ public class BottomNavigationBar extends View {
     public ViewGroup.LayoutParams getLayoutParams() {
         ViewGroup.LayoutParams params = super.getLayoutParams();
         return params;
+    }
+
+    /**
+     * 设置图标大小
+     *
+     * @param itemIconWidth
+     * @param itemIconHeight
+     */
+    public void setItemIconSize(int itemIconWidth, int itemIconHeight) {
+        this.itemIconWidth = itemIconWidth;
+        this.itemIconHeight = itemIconHeight;
+        format();
+        postInvalidate();
+    }
+
+    /**
+     * 设置Title文字大小
+     *
+     * @param titleSize
+     */
+    public void setTitleSize(int titleSize) {
+        this.titleSize = titleSize;
+        format();
+        postInvalidate();
+    }
+
+    /**
+     * 设置图标和title文字间距
+     *
+     * @param textTopMargin
+     */
+    public void setTextTopMargin(int textTopMargin) {
+        this.textTop = textTopMargin;
+        postInvalidate();
     }
 
     /**
@@ -244,6 +346,7 @@ public class BottomNavigationBar extends View {
         }
         super.setLayoutParams(params);
     }
+
 
     /**
      * 初始化，获取该View的自定义属性，以及item 列表
@@ -273,6 +376,7 @@ public class BottomNavigationBar extends View {
             int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
             parseXml(xmlRes);
         }
+        fragmentMap = new HashMap<>();
         format();
     }
 
@@ -292,7 +396,11 @@ public class BottomNavigationBar extends View {
         } else {
             background = new ColorDrawable(Color.WHITE);
         }
-//setBackgroundColor(Color.TRANSPARENT);
+        for (Item item : itemList) {
+            item.titleSize = titleSize;
+            item.iconWidth = itemIconWidth;
+            item.iconHeight = itemIconHeight;
+        }
     }
 
     /**
@@ -314,13 +422,13 @@ public class BottomNavigationBar extends View {
                         break;
                     case XmlPullParser.START_TAG:
                         //一般都是获取标签的属性值，所以在这里数据你需要的数据
-                        Log.e(TAG, "当前标签是：" + xmlParser.getName());
+//                        Log.e(TAG, "当前标签是：" + xmlParser.getName());
                         if (xmlParser.getName().equals("item")) {
                             Item item = new Item();
                             for (int i = 0; i < xmlParser.getAttributeCount(); i++) {
                                 //两种方法获取属性值
-                                Log.e(TAG, "第" + (i + 1) + "个属性：" + xmlParser.getAttributeName(i)
-                                        + ": " + xmlParser.getAttributeValue(i));
+//                                Log.e(TAG, "第" + (i + 1) + "个属性：" + xmlParser.getAttributeName(i)
+//                                        + ": " + xmlParser.getAttributeValue(i));
                                 if ("id".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
                                     item.id = xmlParser.getAttributeResourceValue(i, 0);
                                 } else if ("icon".equalsIgnoreCase(xmlParser.getAttributeName(i))) {
@@ -356,14 +464,11 @@ public class BottomNavigationBar extends View {
                             if (item.checkable && item.checked) {
                                 checkedPosition = itemList.size();
                             }
-                            item.titleSize = titleSize;
-                            item.iconWidth = itemIconWidth;
-                            item.iconHeight = itemIconHeight;
                             itemList.add(item);
                         }
                         break;
                     case XmlPullParser.TEXT:
-                        Log.e(TAG, "Text:" + xmlParser.getText());
+//                        Log.e(TAG, "Text:" + xmlParser.getText());
                         break;
                     case XmlPullParser.END_TAG:
                         Log.e(TAG, "xml解析结束");
@@ -411,16 +516,16 @@ public class BottomNavigationBar extends View {
         bottomPadding = getPaddingBottom();
         if (specMode == MeasureSpec.AT_MOST) {
             createTextPaint(titleSize, Color.BLACK);
-            int iconHeight = itemIconHeight>50?itemIconHeight:50;
+            int iconHeight = itemIconHeight > 50 ? itemIconHeight : 50;
             int textHeight = getTextHeight("首页", mPaint);
-            mHeight = topPadding+bottomPadding+iconHeight+textHeight+textTop;
+            mHeight = topPadding + bottomPadding + iconHeight + textHeight + textTop;
         } else {
             mHeight = MeasureSpec.getSize(heightMeasureSpec);
         }
         mHeight += floatingUpInit;
         topPadding = getPaddingTop() + floatingUpInit;
-        mItemHeight = mHeight > mItemWidth ? mItemWidth : mHeight;
-        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, MeasureSpec.getMode(heightMeasureSpec)));
+        mItemHeight = mHeight;
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, specMode));
     }
 
 
@@ -830,5 +935,58 @@ public class BottomNavigationBar extends View {
             drawable.draw(canvas);
             return bitmap;
         }
+    }
+
+    /**
+     * 改变Fragment
+     *
+     * @param to
+     */
+    private void selectFragment(Fragment to) {
+        if (!isReplace) {
+            hiddenFragment(currentFragment, to);
+        } else {
+            replaceFragment(currentFragment, to);
+        }
+
+    }
+
+    /**
+     * 隐藏Fragment
+     *
+     * @param from
+     * @param to
+     */
+    private void hiddenFragment(Fragment from, Fragment to) {
+        FragmentTransaction transaction = manager.beginTransaction();
+        if (from != null && from != to) {
+            if (to.isAdded()) {
+                transaction.hide(from).show(to);
+            } else {
+                transaction.add(containerView.getId(), to).hide(from).show(to);
+            }
+        } else {
+            transaction.replace(containerView.getId(), to);
+        }
+        transaction.commit();
+        currentFragment = to;
+    }
+
+    /**
+     * 替换Fragment
+     *
+     * @param from
+     * @param to
+     */
+    private void replaceFragment(Fragment from, Fragment to) {
+        FragmentTransaction transaction = manager.beginTransaction();
+        if (from != null && from != to) {
+            transaction.remove(from);
+            transaction.replace(containerView.getId(), to);
+        } else {
+            transaction.replace(containerView.getId(), to);
+        }
+        transaction.commit();
+        currentFragment = to;
     }
 }
