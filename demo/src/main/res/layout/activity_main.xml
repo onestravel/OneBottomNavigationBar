@@ -4,29 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_orange_dark"
     android:clipChildren="false"
     android:orientation="vertical"
-    tools:context="cn.onestravel.navigation.demo.MainActivity">
+    tools:context="cn.onestravel.one.navigation.demo.MainActivity">
 
     <FrameLayout
-        android:id="@+id/main_fragment"
+        android:id="@+id/mainFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:padding="50dp">
-
-    </FrameLayout>
+        ></FrameLayout>
 
 
-    <cn.onestravel.navigation.view.OneBottomNavigationBar
-        android:id="@+id/BottomLayout"
+    <cn.onestravel.one.navigation.view.OneBottomNavigationBar
+        android:id="@+id/oneBottomLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp"
         app:oneFloatingEnable="true"
         app:oneFloatingUp="20dp"
         app:oneItemIconHeight="30dp"
@@ -35,7 +31,7 @@
         app:oneItemTextTopMargin="2dp"
         app:oneMenu="@menu/navigation_menu">
 
-    </cn.onestravel.navigation.view.OneBottomNavigationBar>
+    </cn.onestravel.one.navigation.view.OneBottomNavigationBar>
 
 
 </LinearLayout>

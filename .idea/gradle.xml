@@ -8,7 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/BottomNavigationBar" />
+            <option value="$PROJECT_DIR$/OneBottomNavigationBar" />
             <option value="$PROJECT_DIR$/demo" />
           </set>
         </option>

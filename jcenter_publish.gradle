@@ -1,0 +1,148 @@
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'org.jetbrains.dokka-android'
+
+
+if (project.hasProperty("kotlin")) { //Kotlin libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    task javadoc(type: Javadoc, dependsOn: dokka) {
+
+    }
+} else if (project.hasProperty("android")) { // Android libraries
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+//        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+} else { // Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+//解决kotlin javadoc.options抱错
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+}
+
+// project
+Properties propertiesProject = new Properties()
+propertiesProject.load(project.rootProject.file('project.properties').newDataInputStream())
+
+version = propertiesProject.getProperty("project.version")
+group = propertiesProject.getProperty("project.groupId")
+def versionName = propertiesProject.getProperty("project.version")
+def groupName = propertiesProject.getProperty("project.groupId")
+def projectRepo = propertiesProject.getProperty("project.repo")
+def artifact = propertiesProject.getProperty("project.artifact")
+def projectName = propertiesProject.getProperty("project.name")
+def projectDescription = propertiesProject.getProperty("project.description")
+def siteUrl = propertiesProject.getProperty("project.siteUrl")
+def gitUrl = propertiesProject.getProperty("project.gitUrl")
+def packageType = propertiesProject.getProperty("project.packaging")
+def licenseName = propertiesProject.getProperty("project.licenseName")
+def licenseUrl = propertiesProject.getProperty("project.licenseUrl")
+def allLicenses = propertiesProject.getProperty("project.allLicenses")
+
+// Bintray
+Properties propertiesLocal = new Properties()
+propertiesLocal.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def developerId = propertiesLocal.getProperty("developer.id")
+def developerName = propertiesLocal.getProperty("developer.name")
+def developerEmail = propertiesLocal.getProperty("developer.email")
+
+install {
+
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging packageType
+                groupId groupName
+                artifactId artifact
+
+                // Add your description here
+                name projectName
+                description projectDescription
+                url siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name licenseName
+                        url licenseUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+
+bintray {
+    user = propertiesLocal.getProperty("bintray.user")
+    key = propertiesLocal.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = projectRepo
+        name = projectName
+        desc = projectDescription
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            name = versionName
+            desc = projectDescription
+//            gpg {
+//                sign = true //Determines whether to GPG sign the files. The default is false
+//                passphrase = properties.getProperty("bintray.gpg.password")
+//                //Optional. The passphrase for GPG signing'
+//            }
+        }
+    }
+}
