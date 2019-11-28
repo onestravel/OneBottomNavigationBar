@@ -23,6 +23,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
@@ -57,7 +58,7 @@ import cn.onestravel.navigation.utils.DensityUtils;
  * @createTime 2019/1/20 9:48 AM
  * @description 可以凸起的底部导航菜单VIEW
  */
-public class BottomNavigationBar extends View {
+public class OneBottomNavigationBar extends View {
     private String TAG = "BottomNavigationBar";
     // 导航菜单键列表
     private List<Item> itemList = new ArrayList<>();
@@ -103,18 +104,20 @@ public class BottomNavigationBar extends View {
     private View containerView;
     private Fragment currentFragment;
     private boolean isReplace;
+    private Paint linePaint;
+    private int topLineColor;
 
-    public BottomNavigationBar(Context context) {
+    public OneBottomNavigationBar(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public BottomNavigationBar(Context context, AttributeSet attrs) {
+    public OneBottomNavigationBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public BottomNavigationBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public OneBottomNavigationBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -221,6 +224,26 @@ public class BottomNavigationBar extends View {
         this.itemColorStateList = ResourcesCompat.getColorStateList(getResources(), resId, null);
         postInvalidate();
     }
+
+
+    /**
+     * 设置分割线颜色
+     * @param color
+     */
+    public void setTopLineColor(@ColorInt int color) {
+        this.topLineColor = color;
+    }
+
+
+    /**
+     * 设置分割线颜色
+     * @param colorRes
+     */
+    public void setTopLineColorRes(@ColorRes int colorRes) {
+        this.topLineColor = getResources().getColor(colorRes);
+    }
+
+
 
     /**
      * 设置是否开启浮动
@@ -358,22 +381,23 @@ public class BottomNavigationBar extends View {
     @SuppressLint("ResourceType")
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         if (attrs != null) {
-            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.StyleBottomLayout);
-            itemIconTintRes = ta.getColorStateList(R.styleable.StyleBottomLayout_itemIconTint);
-            itemColorStateList = ta.getColorStateList(R.styleable.StyleBottomLayout_itemTextColor);
+            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.One_StyleBottomLayout);
+            itemIconTintRes = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemIconTint);
+            itemColorStateList = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemTextColor);
             if (itemIconTintRes == null) {
                 itemIconTintRes = ResourcesCompat.getColorStateList(getResources(), R.drawable.default_blue_tab_tint, null);
             }
             if (itemColorStateList == null) {
                 itemColorStateList = ResourcesCompat.getColorStateList(getResources(), R.drawable.default_blue_tab_tint, null);
             }
-            floatingEnable = ta.getBoolean(R.styleable.StyleBottomLayout_floatingEnable, false);
-            floatingUp = floatingUpInit = (int) ta.getDimension(R.styleable.StyleBottomLayout_floatingUp, 0);
-            titleSize = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemTextSize, DensityUtils.spToPx(getResources(), 14));
-            textTop = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemTextTopMargin, DensityUtils.dpToPx(getResources(), 3));
-            itemIconWidth = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemIconWidth, 0);
-            itemIconHeight = (int) ta.getDimension(R.styleable.StyleBottomLayout_itemIconHeight, 0);
-            int xmlRes = ta.getResourceId(R.styleable.StyleBottomLayout_menu, 0);
+            topLineColor = ta.getColor(R.styleable.One_StyleBottomLayout_oneItemTopLineColor,Color.parseColor("#CCCCCC"));
+            floatingEnable = ta.getBoolean(R.styleable.One_StyleBottomLayout_oneFloatingEnable, false);
+            floatingUp = floatingUpInit = (int) ta.getDimension(R.styleable.One_StyleBottomLayout_oneFloatingUp, 0);
+            titleSize = (int) ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextSize, DensityUtils.spToPx(getResources(), 14));
+            textTop = (int) ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextTopMargin, DensityUtils.dpToPx(getResources(), 3));
+            itemIconWidth = (int) ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemIconWidth, 0);
+            itemIconHeight = (int) ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemIconHeight, 0);
+            int xmlRes = ta.getResourceId(R.styleable.One_StyleBottomLayout_oneMenu, 0);
             parseXml(xmlRes);
         }
         fragmentMap = new HashMap<>();
@@ -401,6 +425,8 @@ public class BottomNavigationBar extends View {
             item.iconWidth = itemIconWidth;
             item.iconHeight = itemIconHeight;
         }
+        linePaint = createPaint(topLineColor);
+        linePaint.setStrokeWidth(DensityUtils.dpToPx(getContext(), 1));
     }
 
     /**
@@ -413,6 +439,7 @@ public class BottomNavigationBar extends View {
             if (xmlRes == 0) {
                 return;
             }
+            itemList.clear();
             XmlResourceParser xmlParser = getResources().getXml(xmlRes);
             int event = xmlParser.getEventType();   //先获取当前解析器光标在哪
             while (event != XmlPullParser.END_DOCUMENT) {    //如果还没到文档的结束标志，那么就继续往下处理
@@ -546,12 +573,13 @@ public class BottomNavigationBar extends View {
         canvas.drawBitmap(bitmap, 0, floatingUpInit, mPaint);
         Rect rectInit = new Rect();
         rectInit.set(0, floatingUpInit, mWidth, mHeight);
+        canvas.drawLine(0, floatingUpInit, mWidth, floatingUpInit, linePaint);
         //画背景
+        drawFloating(canvas);
         background.setBounds(rectInit);
         background.draw(canvas);
 
         //画Floating
-        drawFloating(canvas);
         //画出所有导航菜单
         if (itemList.size() > 0) {
             for (int i = 0; i < itemList.size(); i++) {
@@ -596,6 +624,8 @@ public class BottomNavigationBar extends View {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         paint.setColorFilter(background.getColorFilter());
                     }
+                    linePaint.setStyle(Paint.Style.STROKE);
+                    canvas.drawCircle(x, y, r + DensityUtils.dpToPx(getContext(), 1)/2, linePaint);
                     paint.setStyle(Paint.Style.FILL);
                     canvas.drawCircle(x, y, r, paint);
                 }

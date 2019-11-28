@@ -6,19 +6,13 @@
         android:id="@+id/tab1"
         android:icon="@drawable/bar_news"
         android:title="首页"></item>
-    <item
-        android:id="@+id/tab2"
-        android:icon="@drawable/bar_constact"
-        android:title="联系人"></item>
+
     <item
         android:id="@+id/tab5"
         android:icon="@drawable/tab_manage_normal"
         app:floating="true"
         android:title="拍照"></item>
-    <item
-        android:id="@+id/tab3"
-        android:icon="@drawable/bar_invite"
-        android:title="发现"></item>
+
     <item
         android:id="@+id/tab4"
         android:icon="@drawable/bar_my"

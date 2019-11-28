@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="StyleBottomLayout">
-        <attr name="itemIconTint" format="reference"></attr>
-        <attr name="itemIconWidth" format="dimension"></attr>
-        <attr name="itemIconHeight" format="dimension"></attr>
-        <attr name="itemTextColor" format="reference"></attr>
-        <attr name="itemTextSize" format="dimension"></attr>
-        <attr name="itemTextTopMargin" format="dimension"></attr>
-        <attr name="floatingEnable" format="boolean">false</attr>
-        <attr name="floatingUp" format="dimension"></attr>
-        <attr name="menu" format="reference"></attr>
+    <attr name="icon" format="reference"></attr>
+    <attr name="title" format="string"></attr>
+    <attr name="floating" format="boolean"></attr>
+    <declare-styleable name="One_StyleBottomLayout">
+        <attr name="oneItemIconTint" format="reference"></attr>
+        <attr name="oneItemIconWidth" format="dimension"></attr>
+        <attr name="oneItemIconHeight" format="dimension"></attr>
+        <attr name="oneItemTextColor" format="reference"></attr>
+        <attr name="oneItemTopLineColor" format="reference"></attr>
+        <attr name="oneItemTextSize" format="dimension"></attr>
+        <attr name="oneItemTextTopMargin" format="dimension"></attr>
+        <attr name="oneFloatingEnable" format="boolean"></attr>
+        <attr name="oneFloatingUp" format="dimension"></attr>
+        <attr name="oneMenu" format="reference"></attr>
     </declare-styleable>
 
-    <declare-styleable name="StyleBottomItemView">
-        <attr name="icon" format="reference"></attr>
-        <attr name="title" format="string"></attr>
-        <attr name="floating" format="boolean"></attr>
-    </declare-styleable>
 </resources>
