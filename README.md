@@ -1,10 +1,10 @@
 
 
-# [BottomNavigationBar](https://github.com/onestravel/BottomNavigationBar) 使用说明
+# [OneBottomNavigationBar](https://github.com/onestravel/OneBottomNavigationBar) 使用说明
 
 ## 简介：
 
-##### BottomNavigationBar 是自定义的一个实现App应用底部导航栏功能的View,可以实现底部 2-5 个导航菜单（一般不会有更多），可以实现某一个菜单凸起的效果，如，有5个菜单，可以选择让第三个菜单凸起（floating），这是很多App都有的功能; 可以根据编写的颜色变化的资源文件来更改图标和文字选中时和未选中时的颜色，可以自由控制是否需要选中（checkable）,选择开启时，可变换为选中颜色，选择关闭时，不能更改为选择颜色;可以控制默认选中哪一项；可以设置某一个导航菜单的未读消息数（数字或者小红点）。
+##### OneBottomNavigationBar 是自定义的一个实现App应用底部导航栏功能的View,可以实现底部 2-5 个导航菜单（一般不会有更多），可以实现某一个菜单凸起的效果，如，有5个菜单，可以选择让第三个菜单凸起（floating），这是很多App都有的功能; 可以根据编写的颜色变化的资源文件来更改图标和文字选中时和未选中时的颜色，可以自由控制是否需要选中（checkable）,选择开启时，可变换为选中颜色，选择关闭时，不能更改为选择颜色;可以控制默认选中哪一项；可以设置某一个导航菜单的未读消息数（数字或者小红点）。
 
 ### 先看一组效果图
 
@@ -43,7 +43,7 @@ TAG:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://
 
 ```
 dependencies {
-implementation 'com.github.onestravel:BottomNavigationBar:TAG'
+implementation 'com.github.onestravel:OneBottomNavigationBar:TAG'
 }
 
 ```
@@ -66,7 +66,7 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 ```
 	<dependency>
 	    <groupId>com.github.onestravel</groupId>
-	    <artifactId>BottomNavigationBar</artifactId>
+	    <artifactId>OneBottomNavigationBar</artifactId>
 	    <version>TAG</version>
 	</dependency>
 
@@ -76,25 +76,27 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 
 ## 属性说明
 
-### BottomNavigationBar 属性说明
+### OneBottomNavigationBar 属性说明
 
 | 属性               | 参考值                 | 说明                                                         |
 | ------------------ | ---------------------- | ------------------------------------------------------------ |
-| app:itemIconTint   | @drawable/tab_selecter | 整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
-| app:itemTextColor  | @drawable/tab_selecter | @drawable/tab_selecter@drawable/tab_selecter整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
-| app:floatingEnable | true/false             | 是否开启浮动，默认为false，设置为true是，可以实现中间凸起    |
-| app:floatingUp     | 20dp                   | 设置Tab的上浮尺寸，比如：上浮20dp，上浮尺寸不可超过整个菜单高度的1/2 |
-| app:menu           | @menu/botom_menu       | BottomNavigationBar导航栏的关键，设置导航栏的tab菜单                  |
-| app:itemTextSize   | 15sp       | 设置导航栏文字的大小                 |
-| app:itemIconWidth   | 30dp       | 设置导航栏Icon的宽度                 |
-| app:temIconHeight   | 30dp       | 设置导航栏Icon的高度                |
-| app:itemTextTopMargin   | 5dp       | 置导航栏文字和Icon的间隔高度                  |
+| app:oneItemIconTint   | @drawable/tab_selecter | 整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
+| app:oneItemTextColor  | @drawable/tab_selecter | @drawable/tab_selecter@drawable/tab_selecter整体的tab菜单的图片选中和未选中的颜色变化，传入一个资源drawable文件 |
+| app:oneFloatingEnable | true/false             | 是否开启浮动，默认为false，设置为true是，可以实现中间凸起    |
+| app:oneFloatingUp     | 20dp                   | 设置Tab的上浮尺寸，比如：上浮20dp，上浮尺寸不可超过整个菜单高度的1/2 |
+| app:oneMenu           | @menu/botom_menu       | BottomNavigationBar导航栏的关键，设置导航栏的tab菜单                  |
+| app:oneItemTextSize   | 15sp       | 设置导航栏文字的大小                 |
+| app:oneItemIconWidth   | 30dp       | 设置导航栏Icon的宽度                 |
+| app:oneIemIconHeight   | 30dp       | 设置导航栏Icon的高度                |
+| app:oneItemTextTopMargin   | 5dp       | 置导航栏文字和Icon的间隔高度                  |
+| app:oneItemTopLineColor   |#CCCCCC       | 置导航栏顶部分割线颜色，想去掉该分割线可设置透明色                  |
+
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
 
 ```
 
-    <cn.onestravel.navigation.view.BottomNavigationBar
+    <cn.onestravel.navigation.view.OneBottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -104,14 +106,14 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
         android:paddingBottom="5dp"
         app:menu="@menu/navigation_menu">
 
-    </cn.onestravel.navigation.view.BottomNavigationBar>
+    </cn.onestravel.navigation.view.OneBottomNavigationBar>
     
 ```
 
 #### 示例2:需要浮动（凸起）的菜单，图2效果
 
 ```
- <cn.onestravel.navigation.view.BottomNavigationBar
+ <cn.onestravel.navigation.view.OneBottomNavigationBar
         android:id="@+id/BottomLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -123,7 +125,7 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
         app:floatingUp="25dp"
         app:menu="@menu/navigation_menu">
 
-    </cn.onestravel.navigation.view.BottomNavigationBar>
+    </cn.onestravel.navigation.view.OneBottomNavigationBar>
 ```
 
 ### menu 菜单属性值说明
@@ -131,11 +133,11 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 | 属性              | 参考值             | 说明                                                         |
 | ----------------- | ------------------ | ------------------------------------------------------------ |
 | android:id        | @+id/tab1          | 导航菜单 Item 的ID；                                         |
-| android:icon      | @drawable/bar_news | 导航菜单 Item 的图标，可以是图标选择器（selector），也可以是默认图标，根据BottomNavigationBar的属性 app:itemIconTint 更改选中与不选中的颜色变化，默认为蓝色和灰色； |
+| android:icon      | @drawable/bar_news | 导航菜单 Item 的图标，可以是图标选择器（selector），也可以是默认图标，根据与OneBottomNavigationBar 的属性 app:oneItemIconTint 更改选中与不选中的颜色变化，默认为蓝色和灰色； |
 | android:title     | 首页               | 导航菜单 Item 的文字，可以默认为空字符串，表示不设置；       |
 | android:checkable | true/false         | 设置导航菜单 Item 是否可以选择，值影响选择与不选中效果，不影响点击事件； |
 | android:checked   | true/false         | 设置导航菜单 Item 是否默认选中,默认为第一个选中，请不要在多个Item上设置改； |
-| app:floating      | true/false         | 设置该导航菜单 Item 是否浮动，与BottomNavigationBar 的app:floatingEnable和 app:floatingUp属性配合使用，默认为false，即不浮动（不凸起）； |
+| app:floating      | true/false         | 设置该导航菜单 Item 是否浮动，与OneBottomNavigationBar 的app:floatingEnable和 app:oneFloatingUp属性配合使用，默认为false，即不浮动（不凸起）； |
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
 
@@ -202,9 +204,9 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 ### 设置点击切换监听
 **在NavigationBar的Tab进行切换时，会回调改方法，可进行相应处理，如：未读消息数设置**
 ```
-        bottomView.setOnItemSelectedListener(new BottomNavigationBar.OnItemSelectedListener() {
+        bottomView.setOnItemSelectedListener(new OneBottomNavigationBar.OnItemSelectedListener() {
                     @Override
-                    public void onItemSelected(BottomNavigationBar.Item item, int position) {
+                    public void onItemSelected(OneBottomNavigationBar.Item item, int position) {
                         if(position==2){
                             bottomView.setFloatingEnable(true);
                         }else {
@@ -247,6 +249,12 @@ implementation 'com.github.onestravel:BottomNavigationBar:TAG'
 - 可以Java Api 设置图标的宽度和高度
 - Java Api 设置图标和文字间隔高度
 - 支持管理Fragment ,实现Fragment点击自动切换
+
+
+#### 1.1.0
+- 更换属性，部分属性前增加one前缀，解决属性冲突问题
+- BottomNavigationBar 更换为 OneBottomNavigationBar
+- 增加顶部分割线颜色属性，可设置分割线颜色(或透明色)
 
 # 温馨提示：
 **在使用过程中，如遇到任何问题，可发送邮件至server@onestravel.cn说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**#
