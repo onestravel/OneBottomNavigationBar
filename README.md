@@ -24,8 +24,7 @@
 
 ### jcenter
 
-VERSION:     [ ![Download](https://api.bintray.com/packages/onestravel/one/OneBottomNavigationBar/images/download.svg?version=1.1.0) ](https://bintray.com/onestravel/one/OneBottomNavigationBar/1.1.0/link)
-
+VERSION:     [ ![VERSION](https://api.bintray.com/packages/onestravel/one/OneBottomNavigationBar/images/download.svg) ](https://bintray.com/onestravel/one/OneBottomNavigationBar)
 
 - 在model 中的build.gradle 中增加依赖
 
@@ -44,7 +43,7 @@ dependencies {
 
 ### jitPack
 
-VERSION:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+VERSION:     [![VERSION](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
 
 
 - 在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
