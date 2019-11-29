@@ -22,9 +22,30 @@
 
 ## 引入方法
 
-TAG:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+### jcenter
 
-#### gradle
+VERSION:     [ ![Download](https://api.bintray.com/packages/onestravel/one/OneBottomNavigationBar/images/download.svg?version=1.1.0) ](https://bintray.com/onestravel/one/OneBottomNavigationBar/1.1.0/link)
+
+
+- 在model 中的build.gradle 中增加依赖
+
+```
+dependencies {
+    implementation 'cn.onestravel.one:one_bottom_navigationbar:VERSION'
+}
+
+```
+例如：
+```
+dependencies {
+    implementation 'cn.onestravel.one:one_bottom_navigationbar:1.1.1'
+}
+```
+
+### jitPack
+
+VERSION:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://jitpack.io/#onestravel/BottomNavigationBar)
+
 
 - 在项目中的根目录下的 build.gradle (与model同级的) 中增加如下配置
 
@@ -43,36 +64,16 @@ TAG:     [![](https://jitpack.io/v/onestravel/BottomNavigationBar.svg)](https://
 
 ```
 dependencies {
-implementation 'com.github.onestravel:OneBottomNavigationBar:TAG'
+    implementation 'com.github.onestravel:OneBottomNavigationBar:VERSION'
 }
 
 ```
-
-#### maven
-
-- 在pom.xml文件中加入下面配置
-
+例如：
 ```
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+dependencies {
+     implementation 'com.github.onestravel:OneBottomNavigationBar:1.1.1'
+}
 ```
-
-- 添加maven依赖
-
-```
-	<dependency>
-	    <groupId>com.github.onestravel</groupId>
-	    <artifactId>OneBottomNavigationBar</artifactId>
-	    <version>TAG</version>
-	</dependency>
-
-```
-
-
 
 ## 属性说明
 
@@ -255,6 +256,13 @@ implementation 'com.github.onestravel:OneBottomNavigationBar:TAG'
 - 更换属性，部分属性前增加one前缀，解决属性冲突问题
 - BottomNavigationBar 更换为 OneBottomNavigationBar
 - 增加顶部分割线颜色属性，可设置分割线颜色(或透明色)
+
+
+#### 1.1.1
+- 开发语言更换为 kotlin
+- 新增使用androidx.fragment.app.Fragment和androidx.fragment.app.FragmentManager管理fragment的支持，
+包路径为：cn.onestravel.one.navigation.androidx.OneBottomNavigationBar
+- 在jcenter上发布新包 
 
 # 温馨提示：
 **在使用过程中，如遇到任何问题，可发送邮件至server@onestravel.cn说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**#
