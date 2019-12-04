@@ -168,9 +168,11 @@ class OneBottomNavigationBar : View {
             if (containerView!!.id == View.NO_ID) {
                 throw RuntimeException("fragmentContainerView not id")
             }
-            val fragment = fragmentMap[item.id]
-                    ?: throw RuntimeException("[" + item.id + "] fragment is null ")
-            selectFragment(fragment)
+            if (item.showFragment) {
+                val fragment = fragmentMap[item.id]
+                        ?: throw RuntimeException("[" + item.id + "] fragment is null ")
+                selectFragment(fragment)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -461,13 +463,20 @@ class OneBottomNavigationBar : View {
                                     }
                                     item.icon = stateListDrawable
                                 } else if ("title".equals(xmlParser.getAttributeName(i))) {
-                                    item.title = xmlParser.getAttributeValue(i)
+                                    val titleId = xmlParser.getAttributeResourceValue(i, 0)
+                                    if (titleId > 0) {
+                                        item.title = resources.getString(titleId)
+                                    } else {
+                                        item.title = xmlParser.getAttributeValue(i)
+                                    }
                                 } else if ("floating".equals(xmlParser.getAttributeName(i))) {
                                     item.isFloating = xmlParser.getAttributeBooleanValue(i, false)
                                 } else if ("checked".equals(xmlParser.getAttributeName(i))) {
                                     item.isChecked = xmlParser.getAttributeBooleanValue(i, false)
                                 } else if ("checkable".equals(xmlParser.getAttributeName(i))) {
                                     item.isCheckable = xmlParser.getAttributeBooleanValue(i, false)
+                                } else if ("showFragment".equals(xmlParser.getAttributeName(i))) {
+                                    item.showFragment = xmlParser.getAttributeBooleanValue(i, true)
                                 }
                             }
                             if (item.isCheckable && item.isChecked) {
@@ -519,7 +528,9 @@ class OneBottomNavigationBar : View {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val specMode = View.MeasureSpec.getMode(heightMeasureSpec)
         mWidth = View.MeasureSpec.getSize(widthMeasureSpec)
-        mItemWidth = (mWidth - paddingLeft - paddingRight) / itemList.size
+        if (itemList != null && itemList.size > 0) {
+            mItemWidth = (mWidth - paddingLeft - paddingRight) / itemList.size
+        }
         topPadding = paddingTop
         bottomPadding = paddingBottom
         if (specMode == View.MeasureSpec.AT_MOST) {
@@ -879,6 +890,7 @@ class OneBottomNavigationBar : View {
      * 导航菜单Item 的实体
      */
     inner class Item {
+        var showFragment: Boolean = true
         var id: Int = 0
         var icon: StateListDrawable? = null
         var drawable: Drawable? = null

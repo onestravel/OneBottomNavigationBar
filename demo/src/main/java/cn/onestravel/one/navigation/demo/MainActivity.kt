@@ -20,16 +20,13 @@ class MainActivity : AppCompatActivity() {
         oneBottomLayout.setMenu(R.menu.navigation_menu)
         oneBottomLayout.setFragmentManager(fragmentManager, mainFragment )
         oneBottomLayout.addFragment(R.id.tab1, FirstFragment())
-        oneBottomLayout.addFragment(R.id.tab2, SecondFragment())
-        oneBottomLayout.addFragment(R.id.tab3, ThirdFragment())
         oneBottomLayout.addFragment(R.id.tab4, FourFragment())
         oneBottomLayout.addFragment(R.id.tab5, FiveFragment())
         oneBottomLayout.setFloatingEnable(true)
         oneBottomLayout.setItemIconTint(R.drawable.item_check)
         oneBottomLayout.setItemColorStateList(R.drawable.item_check)
         oneBottomLayout.setMsgCount(0, 32)
-        oneBottomLayout.setMsgCount(4, 111)
-        oneBottomLayout.setMsgCount(3, 1)
+        oneBottomLayout.setMsgCount(2, 1)
         oneBottomLayout.setMsgCount(1, -1)
         oneBottomLayout.setOnItemSelectedListener { item, position ->
             if (position == 1) {

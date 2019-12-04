@@ -18,7 +18,13 @@ import kotlinx.android.synthetic.main.fragment_home.*
 class FiveFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false).apply { init() }
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        return view
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        init()
     }
     fun init() {
         tvName?.let {it.text = "FiveFragment"}

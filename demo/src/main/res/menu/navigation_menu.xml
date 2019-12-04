@@ -5,16 +5,18 @@
     <item
         android:id="@+id/tab1"
         android:icon="@drawable/bar_news"
-        android:title="首页"></item>
+        android:title="@string/home"></item>
 
     <item
         android:id="@+id/tab5"
         android:icon="@drawable/tab_manage_normal"
-        app:floating="true"
-        android:title="拍照"></item>
+        android:title="拍照"
+        android:checkable="false"
+        app:showFragment="false"
+        app:floating="true"></item>
 
     <item
         android:id="@+id/tab4"
         android:icon="@drawable/bar_my"
-        android:title="我的"></item>
+        android:title="@string/setting"></item>
 </menu>

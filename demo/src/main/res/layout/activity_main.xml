@@ -19,17 +19,11 @@
     <cn.onestravel.one.navigation.view.OneBottomNavigationBar
         android:id="@+id/oneBottomLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
         android:paddingTop="5dp"
-        app:oneFloatingEnable="true"
-        app:oneFloatingUp="20dp"
-        app:oneItemIconHeight="30dp"
-        app:oneItemIconWidth="30dp"
-        app:oneItemTextSize="15sp"
-        app:oneItemTextTopMargin="2dp"
-        app:oneMenu="@menu/navigation_menu">
+        >
 
     </cn.onestravel.one.navigation.view.OneBottomNavigationBar>
 

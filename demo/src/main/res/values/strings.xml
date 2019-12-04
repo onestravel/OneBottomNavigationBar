@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="setting">设置</string>
+    <string name="photo">拍照</string>
+    <string name="home">首页</string>
 </resources>
