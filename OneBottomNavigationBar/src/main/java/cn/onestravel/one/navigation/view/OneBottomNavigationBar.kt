@@ -964,8 +964,8 @@ class OneBottomNavigationBar : View {
             } else {
                 transaction.add(containerView!!.id, to).hide(from).show(to)
             }
-        } else {
-            transaction.replace(containerView!!.id, to)
+        } else if (to != null) {
+            transaction.replace(containerView!!.id, to).show(to)
         }
         transaction.commit()
         currentFragment = to
@@ -981,9 +981,9 @@ class OneBottomNavigationBar : View {
         val transaction = manager!!.beginTransaction()
         if (from != null && from !== to) {
             transaction.remove(from)
-            transaction.replace(containerView!!.id, to)
-        } else {
-            transaction.replace(containerView!!.id, to)
+            transaction.replace(containerView!!.id, to).show(to)
+        } else if (to != null) {
+            transaction.replace(containerView!!.id, to).show(to)
         }
         transaction.commit()
         currentFragment = to
