@@ -97,6 +97,8 @@ class OneBottomNavigationBar : View {
     private var titleSize: Int = 0
     private var itemIconWidth: Int = 0
     private var itemIconHeight: Int = 0
+    private var itemPadding: Int = 0
+    private var itemFloatingPadding: Int = 0
     private val fragmentMap: MutableMap<Int, Fragment> = HashMap<Int, Fragment>()
     private var manager: FragmentManager? = null
     private var containerView: View? = null
@@ -376,10 +378,12 @@ class OneBottomNavigationBar : View {
             floatingEnable = ta.getBoolean(R.styleable.One_StyleBottomLayout_oneFloatingEnable, false)
             floatingUpInit = ta.getDimension(R.styleable.One_StyleBottomLayout_oneFloatingUp, 0f).toInt()
             floatingUp = floatingUpInit
-            titleSize = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextSize, DensityUtils.spToPx(resources, 14f).toFloat()).toInt()
+            titleSize = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextSize, DensityUtils.spToPx(resources, 12f).toFloat()).toInt()
             textTop = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextTopMargin, DensityUtils.dpToPx(resources, 3f).toFloat()).toInt()
             itemIconWidth = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemIconWidth, 0f).toInt()
             itemIconHeight = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemIconHeight, 0f).toInt()
+            itemPadding = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemPadding, 0f).toInt()
+            itemFloatingPadding = ta.getDimension(R.styleable.One_StyleBottomLayout_oneFloatingPadding, 0f).toInt()
             val xmlRes = ta.getResourceId(R.styleable.One_StyleBottomLayout_oneMenu, 0)
             parseXml(xmlRes)
         }
@@ -406,6 +410,11 @@ class OneBottomNavigationBar : View {
             item.titleSize = titleSize
             item.iconWidth = itemIconWidth
             item.iconHeight = itemIconHeight
+            if (floatingEnable && item.isFloating) {
+                item.padding = itemFloatingPadding
+            } else {
+                item.padding = itemPadding;
+            }
         }
         linePaint = createPaint(topLineColor)
         linePaint!!.strokeWidth = DensityUtils.dpToPx(context, 1f).toFloat()
@@ -643,12 +652,12 @@ class OneBottomNavigationBar : View {
         //图片文字内容宽度
         var width = mItemHeight - topPadding - bottomPadding
         //图片文字内容高度
-        var height = mItemHeight - topPadding - bottomPadding
+        var height = mItemHeight - topPadding - bottomPadding - item.padding * 2
         var startTop = 0
         if (!item.isFloating) {
-            startTop = topPadding
+            startTop = topPadding + item.padding
         } else {
-            startTop = topPadding - floatingUp
+            startTop = topPadding + item.padding - floatingUp
             width = width + floatingUp
             height = height + floatingUp
         }
@@ -897,6 +906,7 @@ class OneBottomNavigationBar : View {
         var title: String? = null
         var titleSize: Int = 0
         var iconWidth: Int = 0
+        var padding: Int = 0
         var iconHeight: Int = 0
         var isFloating = false
         var isChecked = false

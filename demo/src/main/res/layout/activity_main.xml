@@ -22,7 +22,8 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
-        android:paddingTop="5dp"
+        app:oneItemPadding="5dp"
+        app:oneFloatingEnable="true"
         >
 
     </cn.onestravel.one.navigation.view.OneBottomNavigationBar>
