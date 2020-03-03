@@ -16,17 +16,17 @@
         ></FrameLayout>
 
 
-    <cn.onestravel.one.navigation.view.OneBottomNavigationBar
+    <cn.onestravel.one.navigation.androidx.OneBottomNavigationBar
         android:id="@+id/oneBottomLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
-        app:oneItemPadding="5dp"
         app:oneFloatingEnable="true"
+        app:oneFloatingUp="20dp"
         >
 
-    </cn.onestravel.one.navigation.view.OneBottomNavigationBar>
+    </cn.onestravel.one.navigation.androidx.OneBottomNavigationBar>
 
 
 </LinearLayout>

@@ -10,7 +10,7 @@
     <item
         android:id="@+id/tab5"
         android:icon="@drawable/tab_manage_normal"
-        android:title="拍照"
+        android:title=""
         android:checkable="false"
         app:showFragment="false"
         app:floating="true"></item>

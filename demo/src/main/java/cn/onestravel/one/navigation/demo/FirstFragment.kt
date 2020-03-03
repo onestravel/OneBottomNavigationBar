@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
  * @createTime 2019-08-04 11:52
  * @description TODO
  */
-class FirstFragment : Fragment() {
+class FirstFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -23,7 +23,7 @@ class FirstFragment : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
     }

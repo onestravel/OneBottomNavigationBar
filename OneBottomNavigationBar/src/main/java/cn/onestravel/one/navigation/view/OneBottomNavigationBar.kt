@@ -410,7 +410,7 @@ class OneBottomNavigationBar : View {
             item.titleSize = titleSize
             item.iconWidth = itemIconWidth
             item.iconHeight = itemIconHeight
-            if (floatingEnable && item.isFloating) {
+            if (item.isFloating) {
                 item.padding = itemFloatingPadding
             } else {
                 item.padding = itemPadding;
@@ -650,7 +650,7 @@ class OneBottomNavigationBar : View {
             return
         }
         //图片文字内容宽度
-        var width = mItemHeight - topPadding - bottomPadding
+        var width = mItemHeight - topPadding - bottomPadding - item.padding * 2
         //图片文字内容高度
         var height = mItemHeight - topPadding - bottomPadding - item.padding * 2
         var startTop = 0
@@ -678,9 +678,9 @@ class OneBottomNavigationBar : View {
             to.left = paddingLeft + position * mItemWidth + (mItemWidth - width) / 2
             to.top = startTop
             to.right = to.left + width
-            to.bottom = topPadding + height
+            to.bottom = startTop + height
             if (item.isFloating) {
-                to.bottom = topPadding + height - floatingUp
+                to.bottom = startTop + height - floatingUp
             }
             val drawable: Drawable?
             if (item.isCheckable) {

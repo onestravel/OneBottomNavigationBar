@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
  * @createTime 2019-08-04 11:52
  * @description TODO
  */
-class SecondFragment : Fragment() {
+class SecondFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_home, container, false).apply { init() }

@@ -2,11 +2,8 @@ package cn.onestravel.one.navigation.demo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import android.widget.FrameLayout
 
 import cn.onestravel.bottomview.demo.R
-import cn.onestravel.one.navigation.view.OneBottomNavigationBar
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -18,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         oneBottomLayout.setMenu(R.menu.navigation_menu)
-        oneBottomLayout.setFragmentManager(fragmentManager, mainFragment )
+        oneBottomLayout.setFragmentManager(supportFragmentManager, mainFragment )
         oneBottomLayout.addFragment(R.id.tab1, FirstFragment())
         oneBottomLayout.addFragment(R.id.tab4, FourFragment())
         oneBottomLayout.addFragment(R.id.tab5, FiveFragment())
@@ -29,11 +26,11 @@ class MainActivity : AppCompatActivity() {
         oneBottomLayout.setMsgCount(2, 1)
         oneBottomLayout.setMsgCount(1, -1)
         oneBottomLayout.setOnItemSelectedListener { item, position ->
-            if (position == 1) {
-                oneBottomLayout.setFloatingEnable(true)
-            } else {
-                oneBottomLayout.setFloatingEnable(false)
-            }
+//            if (position == 1) {
+//                oneBottomLayout.setFloatingEnable(true)
+//            } else {
+//                oneBottomLayout.setFloatingEnable(false)
+//            }
         }
 
     }

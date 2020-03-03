@@ -15,14 +15,14 @@ import kotlinx.android.synthetic.main.fragment_home.*
  * @createTime 2019-08-04 11:52
  * @description TODO
  */
-class FourFragment : Fragment() {
+class FourFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
     }
