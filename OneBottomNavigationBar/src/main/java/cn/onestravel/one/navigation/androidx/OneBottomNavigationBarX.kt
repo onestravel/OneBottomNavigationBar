@@ -78,6 +78,7 @@ class OneBottomNavigationBar : View {
     private var textTop = DensityUtils.dpToPx(resources, 3f)
     //画笔
     private val mPaint: Paint by lazy { Paint() }
+    private val mTextPaint: Paint by lazy { Paint() }
     //图标的状态颜色列表
     private var itemIconTintRes: ColorStateList? = null
     //文字的状态颜色列表
@@ -549,7 +550,7 @@ class OneBottomNavigationBar : View {
         topPadding = paddingTop
         bottomPadding = paddingBottom
         createTextPaint(titleSize, Color.BLACK)
-        val textHeight = getTextHeight("首页", mPaint!!)
+        val textHeight = getTextHeight("首页", mTextPaint)
         mHeight = if (specMode == View.MeasureSpec.AT_MOST) {
             itemIconHeight = if (itemIconHeight < 50) itemIconHeight else 50
             topPadding + bottomPadding + itemIconHeight + textHeight + textTop + itemPadding * 2
@@ -624,6 +625,10 @@ class OneBottomNavigationBar : View {
         }
     }
 
+    /**
+     * 获取内容区域位置
+     *
+     */
     private fun getItemRect(item: Item, position: Int): Rect {
         val rect = Rect()
         rect.left = paddingLeft + position * mItemWidth
@@ -654,10 +659,10 @@ class OneBottomNavigationBar : View {
                 color = itemColorStateList!!.getColorForState(intArrayOf(android.R.attr.state_checked), itemColorStateList!!.defaultColor)
             }
             createTextPaint(if (item.titleSize == 0) DensityUtils.dpToPx(resources, 14f) else item.titleSize, color)
-            val textHeight = getTextHeight(item.title, mPaint!!)
+            val textHeight = getTextHeight(item.title, mTextPaint)
             val textX = (rect.left + rect.right) / 2
             val textY = rect.bottom - textHeight / 4
-            canvas.drawText(item.title!!, textX.toFloat(), textY.toFloat(), mPaint!!)
+            canvas.drawText(item.title!!, textX.toFloat(), textY.toFloat(), mTextPaint)
         }
         if (item.icon != null) {
             val drawable: Drawable? = getIconDrawable(item, position)
@@ -670,6 +675,9 @@ class OneBottomNavigationBar : View {
         }
     }
 
+    /**
+     * 画出消息数
+     */
     private fun drawItemMsgCount(item: Item, position: Int, canvas: Canvas) {
         val msgCountRect = getMsgCountRect(item, position)
         var x = (msgCountRect.left + msgCountRect.right) / 2
@@ -677,22 +685,23 @@ class OneBottomNavigationBar : View {
         var r = (msgCountRect.bottom - msgCountRect.top) / 2
 
         if (item.msgCount > 0) {
-            createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
-            var countStr = ""
-            if (item.msgCount > 99) {
-                countStr = "99+"
-                createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
-            } else if (item.msgCount < 10) {
-                createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
-                countStr = item.msgCount.toString()
-            } else {
-                countStr = item.msgCount.toString()
+            var countStr = when {
+                item.msgCount > 99 -> {
+                    createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
+                    "99+"
+                }
+                item.msgCount < 10 -> {
+                    createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
+                    item.msgCount.toString()
+                }
+                else -> {
+                    createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
+                    item.msgCount.toString()
+                }
             }
-            x = (msgCountRect.left + msgCountRect.right) / 2
-            y = (msgCountRect.top + msgCountRect.bottom) / 2
             val paint = createPaint(Color.RED)
             canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-            canvas.drawText(countStr, x.toFloat(), (y + (r - DEFAULT_MSG_COUNT_TEXT_PADDING) / 2).toFloat(), mPaint!!)
+            canvas.drawText(countStr, x.toFloat(), (y + (r - DEFAULT_MSG_COUNT_TEXT_PADDING) / 2).toFloat(), mTextPaint)
             paint.style = Paint.Style.STROKE
             paint.color = Color.WHITE
             paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
@@ -710,7 +719,7 @@ class OneBottomNavigationBar : View {
     private fun getMsgCountRect(item: Item, position: Int): Rect {
         val r = if (item.msgCount > 0) {
             createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
-            getTextWidth("99+", mPaint!!) / 2 + DEFAULT_MSG_COUNT_TEXT_PADDING
+            getTextWidth("99+", mTextPaint!!) / 2 + DEFAULT_MSG_COUNT_TEXT_PADDING
         } else {
             7
         }
@@ -770,7 +779,7 @@ class OneBottomNavigationBar : View {
         val floating = getFloatingUpHeight()
         var iconSize = itemIconWidth.coerceAtMost(itemIconHeight)
         createTextPaint(titleSize, Color.BLACK)
-        val textHeight = getTextHeight("首页", mPaint!!)
+        val textHeight = getTextHeight("首页", mTextPaint!!)
         if (TextUtils.isEmpty(item.title)) {
             iconSize += (textTop + textHeight)
         }
@@ -794,13 +803,12 @@ class OneBottomNavigationBar : View {
      * @return
      */
     private fun createTextPaint(textSize: Int, textColor: Int): Paint {
-        mPaint!!.color = textColor//设置画笔的颜色
-        mPaint!!.textSize = textSize.toFloat()//设置文字大小
-        //        mPaint.setStrokeWidth(2);//设置画笔的宽度
-        mPaint!!.isAntiAlias = true//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
-        mPaint!!.textAlign = Paint.Align.CENTER
-        mPaint!!.style = Paint.Style.FILL_AND_STROKE
-        return mPaint as Paint
+        mTextPaint!!.color = textColor//设置画笔的颜色
+        mTextPaint!!.textSize = textSize.toFloat()//设置文字大小
+        mTextPaint!!.isAntiAlias = true//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
+        mTextPaint!!.textAlign = Paint.Align.CENTER
+        mTextPaint!!.style = Paint.Style.FILL_AND_STROKE
+        return mTextPaint as Paint
     }
 
     /**
@@ -810,7 +818,6 @@ class OneBottomNavigationBar : View {
      * @return
      */
     private fun createPaint(color: Int): Paint {
-        val mPaint = Paint()
         mPaint.color = color
         mPaint.isAntiAlias = true//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
         mPaint.textAlign = Paint.Align.CENTER
@@ -873,7 +880,7 @@ class OneBottomNavigationBar : View {
         val location = IntArray(2)
         getLocationOnScreen(location)
         val locationY = location[1]
-        y = y - locationY
+        y -= locationY
         val action = event.action
         if (BuildConfig.DEBUG) {
             Log.e(TAG, "action = $action")
@@ -898,7 +905,7 @@ class OneBottomNavigationBar : View {
                         if (!TextUtils.isEmpty(item.title)) {
                             val color = if (item.isChecked) itemColorStateList!!.getColorForState(intArrayOf(android.R.attr.state_checked), itemColorStateList!!.defaultColor) else itemColorStateList!!.defaultColor
                             createTextPaint(if (item.titleSize == 0) DensityUtils.dpToPx(resources, 14f) else item.titleSize, color)
-                            val textHeight = getTextHeight(item.title, mPaint!!)
+                            val textHeight = getTextHeight(item.title, mTextPaint!!)
                             val textY = startTop + height - textHeight / 4//上边距+图片文字内容高度
                             val w = textY - textHeight / 2 - topPadding
                             //                        width = height = height - textHeight - textTop;
@@ -937,9 +944,7 @@ class OneBottomNavigationBar : View {
         val distanceZ = Math.sqrt(Math.pow(distanceX.toDouble(), 2.0) + Math.pow(distanceY.toDouble(), 2.0)).toInt()
 
         //如果点击位置与圆心的距离大于圆的半径，证明点击位置没有在圆内
-        return if (distanceZ > r) {
-            false
-        } else true
+        return distanceZ <= r
     }
 
     /**
