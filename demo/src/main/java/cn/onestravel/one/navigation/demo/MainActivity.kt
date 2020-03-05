@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         oneBottomLayout.addFragment(R.id.tab1, FirstFragment())
         oneBottomLayout.addFragment(R.id.tab4, FourFragment())
         oneBottomLayout.addFragment(R.id.tab5, FiveFragment())
-        oneBottomLayout.setFloatingEnable(true)
+        oneBottomLayout.setFloatingEnable(false)
         oneBottomLayout.setItemIconTint(R.drawable.item_check)
         oneBottomLayout.setItemColorStateList(R.drawable.item_check)
         oneBottomLayout.setMsgCount(0, 32)

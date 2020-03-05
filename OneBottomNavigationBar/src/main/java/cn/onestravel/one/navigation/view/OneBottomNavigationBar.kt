@@ -20,13 +20,6 @@ import android.graphics.drawable.NinePatchDrawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Build
 
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
-import androidx.annotation.MenuRes
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.DrawableCompat
 
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -37,6 +30,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import androidx.annotation.*
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import cn.onestravel.one.navigation.BuildConfig
 
 import org.xmlpull.v1.XmlPullParser
@@ -48,6 +44,7 @@ import java.util.HashMap
 
 import cn.onestravel.one.navigation.R
 import cn.onestravel.one.navigation.utils.DensityUtils
+import kotlin.math.sqrt
 
 /**
  * @author onestravel
@@ -75,7 +72,7 @@ class OneBottomNavigationBar : View {
     //文字相对于图标的边距
     private var textTop = DensityUtils.dpToPx(resources, 3f)
     //画笔
-    private var mPaint: Paint? = null
+    private val mPaint: Paint by lazy { Paint() }
     //图标的状态颜色列表
     private var itemIconTintRes: ColorStateList? = null
     //文字的状态颜色列表
@@ -87,7 +84,6 @@ class OneBottomNavigationBar : View {
     //是否开启上浮
     private var floatingEnable: Boolean = false
     //上浮距离
-    private var floatingUpInit: Int = 0
     private var floatingUp: Int = 0
     //背景资源
     private var bgDrawable: Drawable? = null
@@ -116,6 +112,7 @@ class OneBottomNavigationBar : View {
     var isReplace: Boolean = false
     private var linePaint: Paint? = null
     private var topLineColor: Int = 0
+    private final val DEFAULT_MSG_COUNT_TEXT_PADDING: Int = DensityUtils.dpToPx(resources, 2f)
 
     constructor(context: Context) : super(context) {
         init(context, null, 0)
@@ -342,13 +339,20 @@ class OneBottomNavigationBar : View {
      */
     override fun setLayoutParams(params: ViewGroup.LayoutParams) {
         if (floatingEnable) {
-            floatingUp = floatingUpInit
-            if (params is LinearLayout.LayoutParams) {
-                params.topMargin = params.topMargin - floatingUp
-            } else if (params is RelativeLayout.LayoutParams) {
-                params.topMargin = params.topMargin - floatingUp
-            } else if (params is FrameLayout.LayoutParams) {
-                params.topMargin = params.topMargin - floatingUp
+            val floatingUp = getFloatingUpHeight()
+            when (params) {
+                is LinearLayout.LayoutParams -> {
+                    params.topMargin = params.topMargin - floatingUp
+                }
+                is RelativeLayout.LayoutParams -> {
+                    params.topMargin = params.topMargin - floatingUp
+                }
+                is FrameLayout.LayoutParams -> {
+                    params.topMargin = params.topMargin - floatingUp
+                }
+                is ViewGroup.MarginLayoutParams -> {
+                    params.topMargin = params.topMargin - floatingUp
+                }
             }
         }
         super.setLayoutParams(params)
@@ -376,8 +380,7 @@ class OneBottomNavigationBar : View {
             }
             topLineColor = ta.getColor(R.styleable.One_StyleBottomLayout_oneItemTopLineColor, Color.parseColor("#CCCCCC"))
             floatingEnable = ta.getBoolean(R.styleable.One_StyleBottomLayout_oneFloatingEnable, false)
-            floatingUpInit = ta.getDimension(R.styleable.One_StyleBottomLayout_oneFloatingUp, 0f).toInt()
-            floatingUp = floatingUpInit
+            floatingUp = ta.getDimension(R.styleable.One_StyleBottomLayout_oneFloatingUp, 20f).toInt()
             titleSize = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextSize, DensityUtils.spToPx(resources, 12f).toFloat()).toInt()
             textTop = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemTextTopMargin, DensityUtils.dpToPx(resources, 3f).toFloat()).toInt()
             itemIconWidth = ta.getDimension(R.styleable.One_StyleBottomLayout_oneItemIconWidth, 0f).toInt()
@@ -535,31 +538,26 @@ class OneBottomNavigationBar : View {
      * @param heightMeasureSpec
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val specMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        mWidth = View.MeasureSpec.getSize(widthMeasureSpec)
-        if (itemList != null && itemList.size > 0) {
-            mItemWidth = (mWidth - paddingLeft - paddingRight) / itemList.size
-        }
+        val specMode = MeasureSpec.getMode(heightMeasureSpec)
+        mWidth = MeasureSpec.getSize(widthMeasureSpec)
+        mItemWidth = (mWidth - paddingLeft - paddingRight) / itemList.size
         topPadding = paddingTop
         bottomPadding = paddingBottom
-        if (specMode == View.MeasureSpec.AT_MOST) {
-            createTextPaint(titleSize, Color.BLACK)
-            val iconHeight = if (itemIconHeight > 50) itemIconHeight else 50
-            val textHeight = getTextHeight("首页", mPaint!!)
-            mHeight = topPadding + bottomPadding + iconHeight + textHeight + textTop
+        createTextPaint(titleSize, Color.BLACK)
+        val textHeight = getTextHeight("首页", mPaint!!)
+        mHeight = if (specMode == View.MeasureSpec.AT_MOST) {
+            itemIconHeight = if (itemIconHeight < 50) itemIconHeight else 50
+            topPadding + bottomPadding + itemIconHeight + textHeight + textTop + itemPadding * 2
         } else {
-            mHeight = View.MeasureSpec.getSize(heightMeasureSpec)
+            val height = MeasureSpec.getSize(heightMeasureSpec)
+            this.itemIconHeight = height - topPadding - bottomPadding - textHeight - textTop - itemPadding * 2
+            height
         }
-        mHeight += floatingUpInit
-        topPadding = paddingTop + floatingUpInit
+        this.itemIconWidth = this.itemIconHeight
+        mHeight += getFloatingUpHeight()
         mItemHeight = mHeight
-        floatingUpInit = if (floatingUpInit > mHeight / 2) mHeight / 2 else floatingUpInit
-        super.onMeasure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(mHeight, specMode))
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(mHeight, specMode))
+        layoutParams = layoutParams
     }
 
 
@@ -570,18 +568,13 @@ class OneBottomNavigationBar : View {
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!floatingEnable) {
-            floatingUp = 0
-        } else {
-            floatingUp = floatingUpInit
-        }
-        val bitmap = drawable2Bitmap(bgDrawable)
-        canvas.drawBitmap(bitmap, 0f, floatingUpInit.toFloat(), mPaint)
-        val rectInit = Rect()
-        rectInit.set(0, floatingUpInit, mWidth, mHeight)
-        canvas.drawLine(0f, floatingUpInit.toFloat(), mWidth.toFloat(), floatingUpInit.toFloat(), linePaint!!)
+        var floatingUpInt = getFloatingUpHeight()
+        canvas.drawLine(0f, floatingUpInt.toFloat(), mWidth.toFloat(), floatingUpInt.toFloat(), linePaint!!)
         //画背景
         drawFloating(canvas)
+
+        val rectInit = Rect()
+        rectInit.set(0, floatingUpInt, mWidth, mHeight)
         bgDrawable!!.bounds = rectInit
         bgDrawable!!.draw(canvas)
 
@@ -609,23 +602,10 @@ class OneBottomNavigationBar : View {
             for (i in itemList.indices) {
                 val item = itemList[i]
                 if (item.isFloating) {
-                    var startTop = 0
-                    //图片文字内容宽度
-                    val width = mItemHeight - topPadding - bottomPadding
-                    //图片文字内容高度
-                    val height = mItemHeight - topPadding - bottomPadding
-                    startTop = topPadding
-                    if (!TextUtils.isEmpty(item.title)) {
-                        val color = if (item.isChecked) itemColorStateList!!.getColorForState(intArrayOf(android.R.attr.state_checked), itemColorStateList!!.defaultColor) else itemColorStateList!!.defaultColor
-                        createTextPaint(if (item.titleSize == 0) DensityUtils.dpToPx(resources, 14f) else item.titleSize, color)
-                        val textHeight = getTextHeight(item.title, mPaint!!)
-                        val textY = startTop + height - textHeight / 4//上边距+图片文字内容高度
-                        val w = textY - textHeight / 2 - topPadding
-                        //                        width = height = height - textHeight - textTop;
-                    }
-                    val x = paddingLeft + i * mItemWidth + (mItemWidth - width) / 2 + width / 2
-                    val y = mItemHeight / 2
-                    val r = mItemHeight / 2
+                    var rect = getIconRect(item, i)
+                    val x = (rect.left + rect.right) / 2
+                    val y = (rect.top + rect.bottom) / 2
+                    val r = y
                     val paint = createPaint(Color.WHITE)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         paint.colorFilter = bgDrawable!!.colorFilter
@@ -639,6 +619,19 @@ class OneBottomNavigationBar : View {
         }
     }
 
+    private fun getItemRect(item: Item, position: Int): Rect {
+        val rect = Rect()
+        rect.left = paddingLeft + position * mItemWidth
+        if (floatingEnable && item.isFloating) {
+            rect.top = paddingTop + item.padding + getFloatingUpHeight() / 4
+        } else {
+            rect.top = paddingTop + getFloatingUpHeight() + item.padding
+        }
+        rect.right = rect.left + mItemWidth
+        rect.bottom = mItemHeight - paddingBottom - item.padding
+        return rect
+    }
+
     /**
      * 画出每一个Item导航菜单
      *
@@ -649,18 +642,7 @@ class OneBottomNavigationBar : View {
         if (item == null) {
             return
         }
-        //图片文字内容宽度
-        var width = mItemHeight - topPadding - bottomPadding - item.padding * 2
-        //图片文字内容高度
-        var height = mItemHeight - topPadding - bottomPadding - item.padding * 2
-        var startTop = 0
-        if (!item.isFloating) {
-            startTop = topPadding + item.padding
-        } else {
-            startTop = topPadding + item.padding - floatingUp
-            width = width + floatingUp
-            height = height + floatingUp
-        }
+        var rect = getItemRect(item, position)
         if (!TextUtils.isEmpty(item.title)) {
             var color = if (item.isChecked) itemColorStateList!!.getColorForState(intArrayOf(android.R.attr.state_checked), itemColorStateList!!.defaultColor) else itemColorStateList!!.defaultColor
             if (!item.isCheckable) {
@@ -668,71 +650,134 @@ class OneBottomNavigationBar : View {
             }
             createTextPaint(if (item.titleSize == 0) DensityUtils.dpToPx(resources, 14f) else item.titleSize, color)
             val textHeight = getTextHeight(item.title, mPaint!!)
-            val textY = startTop + height - textHeight / 4//上边距+图片文字内容高度
-            height = height - textHeight - textTop
-            width = height
-            canvas.drawText(item.title!!, (position * mItemWidth + paddingLeft + mItemWidth / 2).toFloat(), textY.toFloat(), mPaint!!)
+            val textX = (rect.left + rect.right) / 2
+            val textY = rect.bottom - textHeight / 4
+            canvas.drawText(item.title!!, textX.toFloat(), textY.toFloat(), mPaint!!)
         }
         if (item.icon != null) {
-            val to = Rect()
-            to.left = paddingLeft + position * mItemWidth + (mItemWidth - width) / 2
-            to.top = startTop
-            to.right = to.left + width
-            to.bottom = startTop + height
-            if (item.isFloating) {
-                to.bottom = startTop + height - floatingUp
+            val drawable: Drawable? = getIconDrawable(item, position)
+            drawable?.let {
+                it.draw(canvas)
             }
-            val drawable: Drawable?
-            if (item.isCheckable) {
-                if (item.isChecked) {
-                    item.icon!!.state = intArrayOf(android.R.attr.state_checked)
-                    drawable = item.icon!!.current
-                } else {
-                    item.icon!!.state = intArrayOf()
-                    drawable = item.icon!!.current
-                }
-            } else {
-                drawable = item.drawable
-            }
-            drawable!!.bounds = to
-            drawable.draw(canvas)
         }
         if (item.msgCount != 0) {
-            var x = 0
-            var y = 0
-            var r = 0
-            if (item.msgCount > 0) {
-                createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
-                r = getTextWidth("99+", mPaint!!) / 2 + 1
-                var count = ""
-                if (item.msgCount > 99) {
-                    count = "99+"
-                    createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
-                } else {
-                    count = item.msgCount.toString()
-                }
-                x = paddingLeft + position * mItemWidth + (mItemWidth - width) / 2 + width - r / 4
-                y = startTop + r - r / 3
-                val paint = createPaint(Color.RED)
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-                canvas.drawText(count, x.toFloat(), (y + r / 2).toFloat(), mPaint!!)
-                paint.style = Paint.Style.STROKE
-                paint.color = Color.WHITE
-                paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-            } else {
-                r = 9
-                x = paddingLeft + position * mItemWidth + (mItemWidth - width) / 2 + width - r
-                y = startTop + r
-                val paint = createPaint(Color.RED)
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-                paint.style = Paint.Style.STROKE
-                paint.color = Color.WHITE
-                paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-            }
-
+            drawItemMsgCount(item, position, canvas)
         }
+    }
+
+    private fun drawItemMsgCount(item: Item, position: Int, canvas: Canvas) {
+        val msgCountRect = getMsgCountRect(item, position)
+        var x = (msgCountRect.left + msgCountRect.right) / 2
+        var y = (msgCountRect.top + msgCountRect.bottom) / 2
+        var r = (msgCountRect.bottom - msgCountRect.top) / 2
+
+        if (item.msgCount > 0) {
+            createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
+            var countStr = ""
+            if (item.msgCount > 99) {
+                countStr = "99+"
+                createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
+            } else if (item.msgCount < 10) {
+                createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
+                countStr = item.msgCount.toString()
+            } else {
+                countStr = item.msgCount.toString()
+            }
+            x = (msgCountRect.left + msgCountRect.right) / 2
+            y = (msgCountRect.top + msgCountRect.bottom) / 2
+            val paint = createPaint(Color.RED)
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+            canvas.drawText(countStr, x.toFloat(), (y + (r - DEFAULT_MSG_COUNT_TEXT_PADDING) / 2).toFloat(), mPaint!!)
+            paint.style = Paint.Style.STROKE
+            paint.color = Color.WHITE
+            paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+        } else {
+            val paint = createPaint(Color.RED)
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+            paint.style = Paint.Style.STROKE
+            paint.color = Color.WHITE
+            paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+        }
+    }
+
+    private fun getMsgCountRect(item: Item, position: Int): Rect {
+        val r = if (item.msgCount > 0) {
+            createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
+            getTextWidth("99+", mPaint!!) / 2 + DEFAULT_MSG_COUNT_TEXT_PADDING
+        } else {
+            7
+        }
+        val rect = getIconRect(item, position)
+        var x = (rect.left + rect.right) / 2
+        var y = (rect.top + rect.bottom) / 2
+        var r2 = y - rect.top
+        val offset = sqrt(r2 * r2 * 1.0 / 2)
+        val msgRect = Rect()
+        msgRect.left = (x + offset - r).toInt()
+        msgRect.top = (y - offset - r).toInt()
+        if (item.msgCount > 0) {
+            msgRect.left += r / 3
+            msgRect.top += r / 3
+        }
+        msgRect.right = msgRect.left + 2 * r
+        msgRect.bottom = msgRect.top + 2 * r
+        return msgRect
+    }
+
+
+    private fun getFloatingUpHeight(): Int {
+        if (floatingEnable) {
+            for (item in itemList) {
+                if (item.isFloating) {
+                    return floatingUp
+                }
+            }
+        }
+        return 0
+    }
+
+    private fun getIconDrawable(item: Item, position: Int): Drawable? {
+        val drawable: Drawable? = if (item.isCheckable) {
+            if (item.isChecked) {
+                item.icon!!.state = intArrayOf(android.R.attr.state_checked)
+                item.icon!!.current
+            } else {
+                item.icon!!.state = intArrayOf()
+                item.icon!!.current
+            }
+        } else {
+            item.drawable
+        }
+        drawable?.let {
+            it.bounds = getIconRect(item, position)
+        }
+        return drawable
+    }
+
+    /**
+     * 获取图标的位置
+     */
+    private fun getIconRect(item: Item, position: Int): Rect {
+        val rect = getItemRect(item, position)
+        val to = Rect()
+        val floating = getFloatingUpHeight()
+        var iconSize = itemIconWidth.coerceAtMost(itemIconHeight)
+        createTextPaint(titleSize, Color.BLACK)
+        val textHeight = getTextHeight("首页", mPaint!!)
+        if (TextUtils.isEmpty(item.title)) {
+            iconSize += (textTop + textHeight)
+        }
+        to.top = rect.top
+        if (floatingEnable && item.isFloating) {
+            iconSize += floating * 3 / 4
+        }
+        iconSize += (itemPadding - item.padding) * 2//高度修复
+        to.left = (rect.left + rect.right - iconSize) / 2
+        to.right = to.left + iconSize
+        to.bottom = to.top + iconSize
+        return to
     }
 
 
@@ -744,9 +789,6 @@ class OneBottomNavigationBar : View {
      * @return
      */
     private fun createTextPaint(textSize: Int, textColor: Int): Paint {
-        if (mPaint == null) {
-            mPaint = Paint()
-        }
         mPaint!!.color = textColor//设置画笔的颜色
         mPaint!!.textSize = textSize.toFloat()//设置文字大小
         //        mPaint.setStrokeWidth(2);//设置画笔的宽度
@@ -841,7 +883,7 @@ class OneBottomNavigationBar : View {
                     val item = itemList[i]
                     var startTop = 0
                     if (!item.isFloating) {
-                        startTop = paddingTop + floatingUp
+                        startTop = paddingTop + getFloatingUpHeight()
                     }
                     if (x > paddingLeft + mItemWidth * i && x < paddingLeft + mItemWidth * (i + 1)) {
                         //图片文字内容宽度
@@ -859,7 +901,7 @@ class OneBottomNavigationBar : View {
                         val centerX = paddingLeft + i * mItemWidth + (mItemWidth - width) / 2 + width / 2
                         val centerY = mItemHeight / 2
                         val r = mItemHeight / 2
-                        if (y >= floatingUp || item.isFloating && isInCircle(centerX, centerY, r, x.toInt(), y.toInt())) {
+                        if (y >= getFloatingUpHeight() || item.isFloating && isInCircle(centerX, centerY, r, x.toInt(), y.toInt())) {
                             setSelected(i)
                         }
                     }
@@ -906,8 +948,8 @@ class OneBottomNavigationBar : View {
         var title: String? = null
         var titleSize: Int = 0
         var iconWidth: Int = 0
-        var padding: Int = 0
         var iconHeight: Int = 0
+        var padding: Int = 0
         var isFloating = false
         var isChecked = false
         var isCheckable = true

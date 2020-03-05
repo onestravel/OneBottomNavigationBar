@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/tab5"
-        android:icon="@drawable/tab_manage_normal"
+        android:icon="@drawable/icon_add"
         android:title=""
         android:checkable="false"
         app:showFragment="false"

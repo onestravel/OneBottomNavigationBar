@@ -48,12 +48,14 @@ import java.util.HashMap
 
 import cn.onestravel.one.navigation.R
 import cn.onestravel.one.navigation.utils.DensityUtils
+import kotlin.math.sqrt
 
 /**
  * @author onestravel
  * @createTime 2019/1/20 9:48 AM
  * @description 可以凸起的底部导航菜单VIEW
  */
+
 typealias OnItemSelectedListener = (item: OneBottomNavigationBar.Item, position: Int) -> Unit
 
 class OneBottomNavigationBar : View {
@@ -115,6 +117,7 @@ class OneBottomNavigationBar : View {
     var isReplace: Boolean = false
     private var linePaint: Paint? = null
     private var topLineColor: Int = 0
+    private final val DEFAULT_MSG_COUNT_TEXT_PADDING: Int = DensityUtils.dpToPx(resources, 2f)
 
     constructor(context: Context) : super(context) {
         init(context, null, 0)
@@ -545,11 +548,11 @@ class OneBottomNavigationBar : View {
         mItemWidth = (mWidth - paddingLeft - paddingRight) / itemList.size
         topPadding = paddingTop
         bottomPadding = paddingBottom
+        createTextPaint(titleSize, Color.BLACK)
         val textHeight = getTextHeight("首页", mPaint!!)
         mHeight = if (specMode == View.MeasureSpec.AT_MOST) {
-            createTextPaint(titleSize, Color.BLACK)
             itemIconHeight = if (itemIconHeight < 50) itemIconHeight else 50
-            topPadding + bottomPadding + itemIconHeight + textHeight + textTop
+            topPadding + bottomPadding + itemIconHeight + textHeight + textTop + itemPadding * 2
         } else {
             val height = MeasureSpec.getSize(heightMeasureSpec)
             this.itemIconHeight = height - topPadding - bottomPadding - textHeight - textTop - itemPadding * 2
@@ -571,7 +574,6 @@ class OneBottomNavigationBar : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         var floatingUpInt = getFloatingUpHeight()
-
         canvas.drawLine(0f, floatingUpInt.toFloat(), mWidth.toFloat(), floatingUpInt.toFloat(), linePaint!!)
         //画背景
         drawFloating(canvas)
@@ -605,7 +607,7 @@ class OneBottomNavigationBar : View {
             for (i in itemList.indices) {
                 val item = itemList[i]
                 if (item.isFloating) {
-                    var rect = getItemRect(item, i)
+                    var rect = getIconRect(item, i)
                     val x = (rect.left + rect.right) / 2
                     val y = (rect.top + rect.bottom) / 2
                     val r = y
@@ -625,7 +627,11 @@ class OneBottomNavigationBar : View {
     private fun getItemRect(item: Item, position: Int): Rect {
         val rect = Rect()
         rect.left = paddingLeft + position * mItemWidth
-        rect.top = paddingTop + getFloatingUpHeight() + item.padding
+        if (floatingEnable && item.isFloating) {
+            rect.top = paddingTop + item.padding + getFloatingUpHeight() / 4
+        } else {
+            rect.top = paddingTop + getFloatingUpHeight() + item.padding
+        }
         rect.right = rect.left + mItemWidth
         rect.bottom = mItemHeight - paddingBottom - item.padding
         return rect
@@ -660,43 +666,69 @@ class OneBottomNavigationBar : View {
             }
         }
         if (item.msgCount != 0) {
-            val iconRect = getIconRect(item,position);
-            var x = 0
-            var y = 0
-            var r = 0
-
-            if (item.msgCount > 0) {
-                createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
-                r = getTextWidth("99+", mPaint!!) / 2 + 1
-                var count = ""
-                if (item.msgCount > 99) {
-                    count = "99+"
-                    createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
-                } else {
-                    count = item.msgCount.toString()
-                }
-                x = iconRect.right - r
-                y = iconRect.top + r - r / 3
-                val paint = createPaint(Color.RED)
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-                canvas.drawText(count, x.toFloat(), (y + r / 2).toFloat(), mPaint!!)
-                paint.style = Paint.Style.STROKE
-                paint.color = Color.WHITE
-                paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-            } else {
-                r = 9
-                x = iconRect.right - r
-                y = iconRect.top + r - r / 3
-                val paint = createPaint(Color.RED)
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-                paint.style = Paint.Style.STROKE
-                paint.color = Color.WHITE
-                paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
-                canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
-            }
-
+            drawItemMsgCount(item, position, canvas)
         }
+    }
+
+    private fun drawItemMsgCount(item: Item, position: Int, canvas: Canvas) {
+        val msgCountRect = getMsgCountRect(item, position)
+        var x = (msgCountRect.left + msgCountRect.right) / 2
+        var y = (msgCountRect.top + msgCountRect.bottom) / 2
+        var r = (msgCountRect.bottom - msgCountRect.top) / 2
+
+        if (item.msgCount > 0) {
+            createTextPaint(DensityUtils.dpToPx(resources, 8f), Color.WHITE)
+            var countStr = ""
+            if (item.msgCount > 99) {
+                countStr = "99+"
+                createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
+            } else if (item.msgCount < 10) {
+                createTextPaint(DensityUtils.dpToPx(resources, 9f), Color.WHITE)
+                countStr = item.msgCount.toString()
+            } else {
+                countStr = item.msgCount.toString()
+            }
+            x = (msgCountRect.left + msgCountRect.right) / 2
+            y = (msgCountRect.top + msgCountRect.bottom) / 2
+            val paint = createPaint(Color.RED)
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+            canvas.drawText(countStr, x.toFloat(), (y + (r - DEFAULT_MSG_COUNT_TEXT_PADDING) / 2).toFloat(), mPaint!!)
+            paint.style = Paint.Style.STROKE
+            paint.color = Color.WHITE
+            paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+        } else {
+            val paint = createPaint(Color.RED)
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+            paint.style = Paint.Style.STROKE
+            paint.color = Color.WHITE
+            paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
+            canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+        }
+    }
+
+    private fun getMsgCountRect(item: Item, position: Int): Rect {
+        val r = if (item.msgCount > 0) {
+            createTextPaint(DensityUtils.dpToPx(resources, 7f), Color.WHITE)
+            getTextWidth("99+", mPaint!!) / 2 + DEFAULT_MSG_COUNT_TEXT_PADDING
+        } else {
+            7
+        }
+        val rect = getIconRect(item, position)
+        var x = (rect.left + rect.right) / 2
+        var y = (rect.top + rect.bottom) / 2
+        var r2 = y - rect.top
+        val offset = sqrt(r2 * r2 * 1.0 / 2)
+        val msgRect = Rect()
+        msgRect.left = (x + offset - r).toInt()
+        msgRect.top = (y - offset - r).toInt()
+        if (item.msgCount > 0) {
+            msgRect.left += r / 3
+            msgRect.top += r / 3
+        }
+        msgRect.right = msgRect.left + 2 * r
+        msgRect.bottom = msgRect.top + 2 * r
+        return msgRect
     }
 
 
@@ -737,12 +769,17 @@ class OneBottomNavigationBar : View {
         val to = Rect()
         val floating = getFloatingUpHeight()
         var iconSize = itemIconWidth.coerceAtMost(itemIconHeight)
-        if (item.isFloating) {
-            iconSize += floating
+        createTextPaint(titleSize, Color.BLACK)
+        val textHeight = getTextHeight("首页", mPaint!!)
+        if (TextUtils.isEmpty(item.title)) {
+            iconSize += (textTop + textHeight)
         }
-        to.left = (rect.left + rect.right - iconSize) / 2
-        to.top = rect.top - floating
         to.top = rect.top
+        if (floatingEnable && item.isFloating) {
+            iconSize += floating * 3 / 4
+        }
+        iconSize += (itemPadding - item.padding) * 2//高度修复
+        to.left = (rect.left + rect.right - iconSize) / 2
         to.right = to.left + iconSize
         to.bottom = to.top + iconSize
         return to
@@ -851,7 +888,7 @@ class OneBottomNavigationBar : View {
                     val item = itemList[i]
                     var startTop = 0
                     if (!item.isFloating) {
-                        startTop = paddingTop + floatingUp
+                        startTop = paddingTop + getFloatingUpHeight()
                     }
                     if (x > paddingLeft + mItemWidth * i && x < paddingLeft + mItemWidth * (i + 1)) {
                         //图片文字内容宽度
@@ -869,7 +906,7 @@ class OneBottomNavigationBar : View {
                         val centerX = paddingLeft + i * mItemWidth + (mItemWidth - width) / 2 + width / 2
                         val centerY = mItemHeight / 2
                         val r = mItemHeight / 2
-                        if (y >= floatingUp || item.isFloating && isInCircle(centerX, centerY, r, x.toInt(), y.toInt())) {
+                        if (y >= getFloatingUpHeight() || item.isFloating && isInCircle(centerX, centerY, r, x.toInt(), y.toInt())) {
                             setSelected(i)
                         }
                     }
