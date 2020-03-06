@@ -88,8 +88,10 @@ dependencies {
 | app:oneItemTextSize   | 15sp       | 设置导航栏文字的大小                 |
 | app:oneItemIconWidth   | 30dp       | 设置导航栏Icon的宽度                 |
 | app:oneIemIconHeight   | 30dp       | 设置导航栏Icon的高度                |
-| app:oneItemTextTopMargin   | 5dp       | 置导航栏文字和Icon的间隔高度                  |
-| app:oneItemTopLineColor   |#CCCCCC       | 置导航栏顶部分割线颜色，想去掉该分割线可设置透明色                  |
+| app:oneItemTextTopMargin   | 5dp       | 设置导航栏文字和Icon的间隔高度                  |
+| app:oneItemTopLineColor   |#CCCCCC       | 设置导航栏顶部分割线颜色，想去掉该分割线可设置透明色                  |
+| app:oneItemPadding   |5dp      | 设置正常导航栏上下边距                 |
+| app:oneFloatingPadding   |2dp       | 设置浮动导航栏上下边距                   |
 
 
 #### 示例1:不需要浮动（凸起）的菜单，图1效果
@@ -230,25 +232,17 @@ dependencies {
 
 ### 版本更新说明
 
-#### 1.0.2
-- 初版实现自定义底部导航栏
+#### 1.2.0
+- 优化图标尺寸计算方式
+- 优化纬度角标绘制位置
+- 新增参数  ``app:oneItemPadding``  和 ``app:oneFloatingPadding`` 设置上下边距
 
-#### 1.0.3
-- 在原基础上对封装进行优化，支持代码实现导航栏
 
-#### 1.0.4
-- 优化选中突出效果，支持选中放大，支持导航栏背景圆角
-
-#### 1.0.5
-- 可以自定义导航栏文字大小
-- 可以自定义图标的宽度和高度
-- 自定义图标和文字间隔高度
-
-#### 1.0.6
-- 可以Java Api 设置导航栏文字大小
-- 可以Java Api 设置图标的宽度和高度
-- Java Api 设置图标和文字间隔高度
-- 支持管理Fragment ,实现Fragment点击自动切换
+#### 1.1.1
+- 开发语言更换为 kotlin
+- 新增使用androidx.fragment.app.Fragment和androidx.fragment.app.FragmentManager管理fragment的支持，
+包路径为：cn.onestravel.one.navigation.androidx.OneBottomNavigationBar
+- 在jcenter上发布新包 
 
 
 #### 1.1.0
@@ -257,11 +251,31 @@ dependencies {
 - 增加顶部分割线颜色属性，可设置分割线颜色(或透明色)
 
 
-#### 1.1.1
-- 开发语言更换为 kotlin
-- 新增使用androidx.fragment.app.Fragment和androidx.fragment.app.FragmentManager管理fragment的支持，
-包路径为：cn.onestravel.one.navigation.androidx.OneBottomNavigationBar
-- 在jcenter上发布新包 
+#### 1.0.6
+- 可以Java Api 设置导航栏文字大小
+- 可以Java Api 设置图标的宽度和高度
+- Java Api 设置图标和文字间隔高度
+- 支持管理Fragment ,实现Fragment点击自动切换
+
+
+#### 1.0.5
+- 可以自定义导航栏文字大小
+- 可以自定义图标的宽度和高度
+- 自定义图标和文字间隔高度
+
+#### 1.0.4
+- 优化选中突出效果，支持选中放大，支持导航栏背景圆角
+
+#### 1.0.3
+- 在原基础上对封装进行优化，支持代码实现导航栏
+
+
+#### 1.0.2
+- 初版实现自定义底部导航栏
+
+
+
+
 
 # 温馨提示：
 **在使用过程中，如遇到任何问题，可发送邮件至server@onestravel.cn说明相关问题，我在看到邮件第一时间，会针对相应问题进行沟通解决，谢谢支持！**#
