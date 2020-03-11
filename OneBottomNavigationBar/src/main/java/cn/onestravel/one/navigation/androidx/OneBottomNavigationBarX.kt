@@ -378,9 +378,6 @@ class OneBottomNavigationBar : View {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.One_StyleBottomLayout)
             itemIconTintRes = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemIconTint)
             itemColorStateList = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemTextColor)
-            if (itemIconTintRes == null) {
-                itemIconTintRes = ResourcesCompat.getColorStateList(resources, R.drawable.default_blue_tab_tint, null)
-            }
             if (itemColorStateList == null) {
                 itemColorStateList = ResourcesCompat.getColorStateList(resources, R.drawable.default_blue_tab_tint, null)
             }
@@ -860,11 +857,15 @@ class OneBottomNavigationBar : View {
      * @param colors
      * @return
      */
-    fun tintListDrawable(drawable: Drawable, colors: ColorStateList?): Drawable {
-        val wrappedDrawable = DrawableCompat.wrap(drawable)
-        DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY)
-        DrawableCompat.setTintList(wrappedDrawable, colors)
-        return wrappedDrawable
+    private fun tintListDrawable(drawable: Drawable, colors: ColorStateList?): Drawable {
+        return if (colors != null) {
+            val wrappedDrawable = DrawableCompat.wrap(drawable)
+            DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY)
+            DrawableCompat.setTintList(wrappedDrawable, colors)
+            wrappedDrawable
+        }else{
+            drawable
+        }
     }
 
     /**

@@ -55,39 +55,56 @@ typealias OnItemSelectedListener = (item: OneBottomNavigationBar.Item, position:
 
 class OneBottomNavigationBar : View {
     private val TAG = "BottomNavigationBar"
+
     // 导航菜单键列表
     private var itemList: MutableList<Item> = ArrayList()
+
     //总宽度 width
     private var mWidth = 0
+
     //总高度 height
     private var mHeight = 0
+
     //每个菜单的宽度 item width
     private var mItemWidth = 0
+
     //每个菜单的告诉 item height
     private var mItemHeight = 0
+
     //整体的上边距
     private var topPadding = DensityUtils.dpToPx(resources, 3f)
+
     //整体下边距
     private var bottomPadding = DensityUtils.dpToPx(resources, 3f)
+
     //文字相对于图标的边距
     private var textTop = DensityUtils.dpToPx(resources, 3f)
+
     //画笔
     private val mPaint: Paint by lazy { Paint() }
     private val mTextPaint: Paint by lazy { Paint() }
+
     //图标的状态颜色列表
     private var itemIconTintRes: ColorStateList? = null
+
     //文字的状态颜色列表
     private var itemColorStateList: ColorStateList? = null
+
     //Item菜单的选中事件
     private var onItemSelectedListener: OnItemSelectedListener? = null
+
     // 当前选中的坐标位置
     private var checkedPosition = 0
+
     //是否开启上浮
     private var floatingEnable: Boolean = false
+
     //上浮距离
     private var floatingUp: Int = 0
+
     //背景资源
     private var bgDrawable: Drawable? = null
+
     //菜单的布局文件
     @MenuRes
     private var menuRes: Int = 0
@@ -373,9 +390,6 @@ class OneBottomNavigationBar : View {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.One_StyleBottomLayout)
             itemIconTintRes = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemIconTint)
             itemColorStateList = ta.getColorStateList(R.styleable.One_StyleBottomLayout_oneItemTextColor)
-            if (itemIconTintRes == null) {
-                itemIconTintRes = ResourcesCompat.getColorStateList(resources, R.drawable.default_blue_tab_tint, null)
-            }
             if (itemColorStateList == null) {
                 itemColorStateList = ResourcesCompat.getColorStateList(resources, R.drawable.default_blue_tab_tint, null)
             }
@@ -855,11 +869,15 @@ class OneBottomNavigationBar : View {
      * @param colors
      * @return
      */
-    fun tintListDrawable(drawable: Drawable, colors: ColorStateList?): Drawable {
-        val wrappedDrawable = DrawableCompat.wrap(drawable)
-        DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY)
-        DrawableCompat.setTintList(wrappedDrawable, colors)
-        return wrappedDrawable
+    private fun tintListDrawable(drawable: Drawable, colors: ColorStateList?): Drawable {
+        return if (colors != null) {
+            val wrappedDrawable = DrawableCompat.wrap(drawable)
+            DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.MULTIPLY)
+            DrawableCompat.setTintList(wrappedDrawable, colors)
+            wrappedDrawable
+        }else{
+            drawable
+        }
     }
 
     /**
