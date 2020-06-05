@@ -6,11 +6,11 @@
     <attr name="showFragment" format="boolean"></attr>
     <declare-styleable name="One_StyleBottomLayout">
         <attr name="oneItemPadding" format="dimension"></attr>
-        <attr name="oneItemIconTint" format="reference"></attr>
+        <attr name="oneItemIconTint" format="color|reference"></attr>
         <attr name="oneItemIconWidth" format="dimension"></attr>
         <attr name="oneItemIconHeight" format="dimension"></attr>
-        <attr name="oneItemTextColor" format="reference"></attr>
-        <attr name="oneItemTopLineColor" format="reference"></attr>
+        <attr name="oneItemTextColor" format="color|reference"></attr>
+        <attr name="oneItemTopLineColor" format="color|reference"></attr>
         <attr name="oneItemTextSize" format="dimension"></attr>
         <attr name="oneItemTextTopMargin" format="dimension"></attr>
         <attr name="oneFloatingEnable" format="boolean"></attr>

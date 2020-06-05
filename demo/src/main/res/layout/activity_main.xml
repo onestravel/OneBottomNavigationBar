@@ -22,13 +22,15 @@
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/bg_navigation"
-        app:oneFloatingEnable="false"
+        app:oneFloatingEnable="true"
+        app:oneFloatingUp="20dp"
         app:oneFloatingPadding="3dp"
         app:oneItemPadding="3dp"
         app:oneItemTextTopMargin="5dp"
-        >
+        app:oneMenu="@menu/navigation_menu"
+        app:oneItemTopLineColor="#cccccc"
+        />
 
-    </cn.onestravel.one.navigation.androidx.OneBottomNavigationBar>
 
 
 </LinearLayout>
