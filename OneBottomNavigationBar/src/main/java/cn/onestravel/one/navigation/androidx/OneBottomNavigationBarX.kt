@@ -363,20 +363,20 @@ class OneBottomNavigationBar : View {
     override fun setLayoutParams(params: ViewGroup.LayoutParams) {
         if (floatingEnable) {
             val floatingUp = getFloatingUpHeight()
-            when (params) {
-                is LinearLayout.LayoutParams -> {
-                    params.topMargin = params.topMargin - floatingUp
-                }
-                is RelativeLayout.LayoutParams -> {
-                    params.topMargin = params.topMargin - floatingUp
-                }
-                is FrameLayout.LayoutParams -> {
-                    params.topMargin = params.topMargin - floatingUp
-                }
-                is ViewGroup.MarginLayoutParams -> {
-                    params.topMargin = params.topMargin - floatingUp
-                }
-            }
+//            when (params) {
+//                is LinearLayout.LayoutParams -> {
+//                    params.topMargin = params.topMargin - floatingUp
+//                }
+//                is RelativeLayout.LayoutParams -> {
+//                    params.topMargin = params.topMargin - floatingUp
+//                }
+//                is FrameLayout.LayoutParams -> {
+//                    params.topMargin = params.topMargin - floatingUp
+//                }
+//                is ViewGroup.MarginLayoutParams -> {
+//                    params.topMargin = params.topMargin - floatingUp
+//                }
+//            }
         }
         super.setLayoutParams(params)
     }
