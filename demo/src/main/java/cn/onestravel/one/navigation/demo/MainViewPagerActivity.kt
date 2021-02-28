@@ -6,21 +6,21 @@ import android.os.Bundle
 
 import cn.onestravel.bottomview.demo.R
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.oneBottomLayout
+import kotlinx.android.synthetic.main.activity_main_viewpager.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainViewPagerActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main_viewpager)
+
         oneBottomLayout.setMenu(R.menu.navigation_menu)
-        oneBottomLayout.setFragmentManager(supportFragmentManager, mainFragment )
-        oneBottomLayout.isReplace = false
-        oneBottomLayout.addFragment(R.id.tab1, FirstFragment())
-        oneBottomLayout.addFragment(R.id.tab4, FourFragment())
-        oneBottomLayout.addFragment(R.id.tab5, FiveFragment())
+
+        oneBottomLayout.attachViewPager(supportFragmentManager,viewPager, listOf(FirstFragment(),FiveFragment(),FirstFragment(),FiveFragment()))
         oneBottomLayout.setFloatingEnable(true)
         oneBottomLayout.setTopLineColor(Color.RED)
         oneBottomLayout.setItemColorStateList(R.drawable.item_check)
@@ -35,6 +35,8 @@ class MainActivity : AppCompatActivity() {
 //            }
             false
         }
+
+
 
     }
 

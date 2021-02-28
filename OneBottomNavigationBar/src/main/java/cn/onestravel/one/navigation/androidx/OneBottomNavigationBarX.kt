@@ -33,21 +33,24 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import cn.onestravel.one.navigation.BuildConfig
 
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
 import java.io.IOException
-import java.util.ArrayList
-import java.util.HashMap
 
 import cn.onestravel.one.navigation.R
 import cn.onestravel.one.navigation.utils.DensityUtils
+import java.util.*
 import kotlin.math.sqrt
 
 /**
@@ -56,9 +59,11 @@ import kotlin.math.sqrt
  * @description 可以凸起的底部导航菜单VIEW
  */
 
-typealias OnItemSelectedListener = (item: OneBottomNavigationBar.Item, position: Int) -> Unit
+typealias OnItemSelectedListener = (item: OneBottomNavigationBar.Item, position: Int) -> Boolean
 
 class OneBottomNavigationBar : View {
+    private var mViewPager: ViewPager? = null
+    private var mLayoutParams: ViewGroup.LayoutParams? = null
     private val TAG = "BottomNavigationBar"
 
     // 导航菜单键列表
@@ -99,6 +104,7 @@ class OneBottomNavigationBar : View {
 
     // 当前选中的坐标位置
     private var checkedPosition = 0
+    private var showPosition = 0
 
     //是否开启上浮
     private var floatingEnable: Boolean = false
@@ -153,7 +159,8 @@ class OneBottomNavigationBar : View {
     /**
      * 设置选中的监听事件
      *
-     * @param onItemSelectedListener
+     * @param onItemSelectedListener return true 选中事件由调用者自己处理
+     *                               return false 选中事件将有本管理器自动实现
      */
     fun setOnItemSelectedListener(onItemSelectedListener: OnItemSelectedListener) {
         this.onItemSelectedListener = onItemSelectedListener
@@ -164,7 +171,10 @@ class OneBottomNavigationBar : View {
      *
      * @param position 选中位置
      */
-    fun setSelected(position: Int) {
+    fun setSelected(position: Int, vpPosition: Int = -1) {
+        if (position < 0 || position >= itemList.size) {
+            return
+        }
         val item = itemList[position]
         if (item.isCheckable) {
             if (checkedPosition >= 0) {
@@ -174,31 +184,83 @@ class OneBottomNavigationBar : View {
             checkedPosition = position
         }
         postInvalidate()
-        if (onItemSelectedListener != null) {
-            onItemSelectedListener!!.invoke(item, position)
+        if (onItemSelectedListener != null && onItemSelectedListener!!.invoke(item, position)) {
+            return
         }
         try {
-            if (manager == null) {
-                throw RuntimeException("FragmentManager is null,please use setFragmentManager(getFragmentManager(),fragmentContainerView) in Activity")
+            if (mViewPager != null) {
+                showPosition = if (vpPosition == -1) {
+                    if (needChangePos(position)) {
+                        0.coerceAtLeast(position - 1)
+                    } else {
+                        position
+                    }
+                } else {
+                    vpPosition
+                }
+                mViewPager?.currentItem = showPosition
+            } else if (manager != null || containerView != null || containerView is ViewGroup || containerView!!.id != View.NO_ID) {
+                showPosition = position;
+                if (item.showFragment) {
+                    val fragment = fragmentMap[item.id]
+                            ?: throw RuntimeException("[" + item.id + "] fragment is null ")
+                    selectFragmentByManager(fragment)
+                }
             }
-            if (containerView == null) {
-                throw RuntimeException("fragmentContainerView is null,please use setFragmentManager(getFragmentManager(),fragmentContainerView) set Fragment's ContainerView")
-            }
-            if (containerView !is ViewGroup) {
-                throw RuntimeException("fragmentContainerView is not viewGroup ")
-            }
-            if (containerView!!.id == View.NO_ID) {
-                throw RuntimeException("fragmentContainerView not id")
-            }
-            if (item.showFragment) {
-                val fragment = fragmentMap[item.id]
-                        ?: throw RuntimeException("[" + item.id + "] fragment is null ")
-                selectFragment(fragment)
-            }
+
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+    }
+
+    /**
+     * 绑定 ViewPager 使用，ViewPager 使用的 Fragment 数量需要与 Tab 数量一致，否则会出现 Fragment 显示与 tab 选中状态不对应的情况
+     * @param viewPager
+     */
+    fun attachViewPager(fragmentManager: FragmentManager, viewPager: ViewPager, fragments: List<Fragment>) {
+        this.mViewPager = viewPager
+        if (this.mViewPager != null) {
+            mViewPager?.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                }
+
+                override fun onPageSelected(position: Int) {
+                    val item = itemList[position]
+                    var newPos = position
+                    if (needChangePos(position)) {
+                        newPos = position + 1
+                    }
+                    setSelected(newPos, position)
+                }
+
+                override fun onPageScrollStateChanged(state: Int) {
+                }
+            })
+            mViewPager?.adapter = ViewpagerAdapter(fragmentManager, fragments)
+            mViewPager?.currentItem = 0
+        }
+    }
+
+    private fun needChangePos(position: Int): Boolean {
+        val notShowPos = findNotShowFragmentPos()
+        if (notShowPos in 0..position) {
+            return true
+        }
+        return false
+    }
+
+    private fun findNotShowFragmentPos(): Int {
+        var pos = -1
+        if (itemList == null || itemList.isEmpty()) {
+            return pos
+        }
+        val item = itemList.find { item -> !item.showFragment }
+        if (item != null) {
+            pos = itemList.indexOf(item);
+        }
+        return pos;
     }
 
     /**
@@ -259,6 +321,7 @@ class OneBottomNavigationBar : View {
      */
     fun setTopLineColor(@ColorInt color: Int) {
         this.topLineColor = color
+        invalidate()
     }
 
 
@@ -268,6 +331,7 @@ class OneBottomNavigationBar : View {
      */
     fun setTopLineColorRes(@ColorRes colorRes: Int) {
         this.topLineColor = resources.getColor(colorRes)
+        invalidate()
     }
 
 
@@ -355,30 +419,37 @@ class OneBottomNavigationBar : View {
         postInvalidate()
     }
 
-    /**
-     * 设置布局参数
-     *
-     * @param params
-     */
-    override fun setLayoutParams(params: ViewGroup.LayoutParams) {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (parent != null && parent is ViewGroup) {
+            (parent as ViewGroup).clipChildren = false
+        }
+    }
+
+    override fun setLayoutParams(params: ViewGroup.LayoutParams?) {
+        super.setLayoutParams(params)
+        updateLayoutParams()
+    }
+
+    private fun updateLayoutParams() {
+        val params = layoutParams;
         if (floatingEnable) {
             val floatingUp = getFloatingUpHeight()
-//            when (params) {
-//                is LinearLayout.LayoutParams -> {
-//                    params.topMargin = params.topMargin - floatingUp
-//                }
-//                is RelativeLayout.LayoutParams -> {
-//                    params.topMargin = params.topMargin - floatingUp
-//                }
-//                is FrameLayout.LayoutParams -> {
-//                    params.topMargin = params.topMargin - floatingUp
-//                }
-//                is ViewGroup.MarginLayoutParams -> {
-//                    params.topMargin = params.topMargin - floatingUp
-//                }
-//            }
+            when (params) {
+                is LinearLayout.LayoutParams -> {
+                    params.topMargin = 0 - floatingUp
+                }
+                is RelativeLayout.LayoutParams -> {
+                    params.topMargin = 0 - floatingUp
+                }
+                is FrameLayout.LayoutParams -> {
+                    params.topMargin = 0 - floatingUp
+                }
+                is ViewGroup.MarginLayoutParams -> {
+                    params.topMargin = 0 - floatingUp
+                }
+            }
         }
-        super.setLayoutParams(params)
     }
 
 
@@ -420,14 +491,14 @@ class OneBottomNavigationBar : View {
         if (itemList.size > 5) {
             itemList = itemList.subList(0, 5)
         }
-        if (getBackground() != null && getBackground() is ColorDrawable) {
-            bgDrawable = getBackground()
-        } else if (getBackground() is StateListDrawable) {
-            bgDrawable = getBackground()
-        } else if (getBackground() is GradientDrawable) {
-            bgDrawable = getBackground()
+        bgDrawable = if (background != null && background is ColorDrawable) {
+            background
+        } else if (background is StateListDrawable) {
+            background
+        } else if (background is GradientDrawable) {
+            background
         } else {
-            bgDrawable = ColorDrawable(Color.WHITE)
+            ColorDrawable(Color.WHITE)
         }
         for (item in itemList) {
             item.titleSize = titleSize
@@ -439,8 +510,7 @@ class OneBottomNavigationBar : View {
                 item.padding = itemPadding;
             }
         }
-        linePaint = createPaint(topLineColor)
-        linePaint!!.strokeWidth = lineWidth
+        linePaint = createPaint(topLineColor, Paint.Style.FILL, lineWidth)
     }
 
     /**
@@ -494,20 +564,20 @@ class OneBottomNavigationBar : View {
                                         stateListDrawable.addState(intArrayOf(), selectedDrawable.current)
                                     }
                                     item.icon = stateListDrawable
-                                } else if ("title".equals(xmlParser.getAttributeName(i))) {
+                                } else if ("title" == xmlParser.getAttributeName(i)) {
                                     val titleId = xmlParser.getAttributeResourceValue(i, 0)
                                     if (titleId > 0) {
                                         item.title = resources.getString(titleId)
                                     } else {
                                         item.title = xmlParser.getAttributeValue(i)
                                     }
-                                } else if ("floating".equals(xmlParser.getAttributeName(i))) {
+                                } else if ("floating" == xmlParser.getAttributeName(i)) {
                                     item.isFloating = xmlParser.getAttributeBooleanValue(i, false)
-                                } else if ("checked".equals(xmlParser.getAttributeName(i))) {
+                                } else if ("checked" == xmlParser.getAttributeName(i)) {
                                     item.isChecked = xmlParser.getAttributeBooleanValue(i, false)
-                                } else if ("checkable".equals(xmlParser.getAttributeName(i))) {
+                                } else if ("checkable" == xmlParser.getAttributeName(i)) {
                                     item.isCheckable = xmlParser.getAttributeBooleanValue(i, false)
-                                } else if ("showFragment".equals(xmlParser.getAttributeName(i))) {
+                                } else if ("showFragment" == xmlParser.getAttributeName(i)) {
                                     item.showFragment = xmlParser.getAttributeBooleanValue(i, true)
                                 }
                             }
@@ -548,7 +618,7 @@ class OneBottomNavigationBar : View {
      */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        setSelected(checkedPosition)
+        setSelected(checkedPosition, showPosition)
     }
 
     /**
@@ -594,7 +664,7 @@ class OneBottomNavigationBar : View {
         drawFloating(canvas)
 
         val rectInit = Rect()
-        rectInit.set(0, (floatingUpInt + lineWidth/2).toInt(), mWidth, mHeight)
+        rectInit.set(0, (floatingUpInt + lineWidth / 2).toInt(), mWidth, mHeight)
         bgDrawable!!.bounds = rectInit
         bgDrawable!!.draw(canvas)
 
@@ -625,15 +695,15 @@ class OneBottomNavigationBar : View {
                     var rect = getIconRect(item, i)
                     val x = (rect.left + rect.right) / 2
                     val y = (rect.top + rect.bottom) / 2
-                    val r = y
-                    val paint = createPaint(Color.WHITE)
+                    val paint = createPaint(Color.WHITE, Paint.Style.FILL, 0f)
+                    val r = y - linePaint!!.strokeWidth / 2
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         paint.colorFilter = bgDrawable!!.colorFilter
                     }
                     linePaint!!.style = Paint.Style.STROKE
-                    canvas.drawCircle(x.toFloat(), y.toFloat(), (r + DensityUtils.dpToPx(context, 1f) / 2).toFloat(), linePaint!!)
+                    canvas.drawCircle(x.toFloat(), y.toFloat(), r, linePaint!!)
                     paint.style = Paint.Style.FILL
-                    canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
+                    canvas.drawCircle(x.toFloat(), y.toFloat(), r - linePaint!!.strokeWidth / 2, paint)
                 }
             }
         }
@@ -713,7 +783,7 @@ class OneBottomNavigationBar : View {
                     item.msgCount.toString()
                 }
             }
-            val paint = createPaint(Color.RED)
+            val paint = createPaint(Color.RED, Paint.Style.FILL, 0f)
             canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
             canvas.drawText(countStr, x.toFloat(), (y + (r - DEFAULT_MSG_COUNT_TEXT_PADDING) / 2).toFloat(), mTextPaint)
             paint.style = Paint.Style.STROKE
@@ -721,7 +791,7 @@ class OneBottomNavigationBar : View {
             paint.strokeWidth = DensityUtils.dpToPx(resources, 1f).toFloat()
             canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
         } else {
-            val paint = createPaint(Color.RED)
+            val paint = createPaint(Color.RED, Paint.Style.FILL, 0f)
             canvas.drawCircle(x.toFloat(), y.toFloat(), r.toFloat(), paint)
             paint.style = Paint.Style.STROKE
             paint.color = Color.WHITE
@@ -832,12 +902,13 @@ class OneBottomNavigationBar : View {
      * @param color 画笔颜色
      * @return
      */
-    private fun createPaint(color: Int): Paint {
+    private fun createPaint(color: Int, style: Paint.Style, strokeWidth: Float): Paint {
         return Paint().apply {
             this.color = color
             this.isAntiAlias = true//设置抗锯齿功能 true表示抗锯齿 false则表示不需要这功能
             this.textAlign = Paint.Align.CENTER
-            this.style = Paint.Style.FILL
+            this.style = style
+            this.strokeWidth = strokeWidth
         }
     }
 
@@ -1023,7 +1094,7 @@ class OneBottomNavigationBar : View {
      *
      * @param to
      */
-    private fun selectFragment(to: Fragment) {
+    private fun selectFragmentByManager(to: Fragment) {
         if (!isReplace) {
             hiddenFragment(currentFragment, to)
         } else {
@@ -1070,4 +1141,19 @@ class OneBottomNavigationBar : View {
         transaction.commit()
         currentFragment = to
     }
+
+
+    private class ViewpagerAdapter(fragmentManager: FragmentManager, val fragments: List<Fragment>) : FragmentPagerAdapter(fragmentManager) {
+        override fun getCount(): Int {
+            return fragments.size
+        }
+
+
+        override fun getItem(position: Int): Fragment {
+            return fragments[position]
+        }
+
+
+    }
+
 }

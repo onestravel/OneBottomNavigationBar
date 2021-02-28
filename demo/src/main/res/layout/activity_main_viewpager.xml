@@ -6,13 +6,14 @@
     android:layout_height="match_parent"
     tools:context="cn.onestravel.one.navigation.demo.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/mainFragment"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:background="#55ff0000"
         android:layout_above="@id/oneBottomLayout"
-        android:layout_weight="1"></FrameLayout>
+        android:layout_weight="1"></androidx.viewpager.widget.ViewPager>
 
     <!--    <cn.onestravel.one.navigation.androidx.OneBottomNavigationBar-->
     <!--        android:id="@+id/oneBottomLayout"-->

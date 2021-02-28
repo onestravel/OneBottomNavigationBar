@@ -32,7 +32,7 @@ dependencies {
     implementation project(':OneBottomNavigationBar')
     implementation "androidx.core:core-ktx:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-//    implementation 'com.github.onestravel:BottomNavigationBar:1.0.2'
+//    implementation 'cn.onestravel.one:one_bottom_navigationbar:1.2.2'
 }
 repositories {
     mavenCentral()

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
         android:id="@+id/tab1"
+        android:icon="@drawable/bar_news"
+        android:title="@string/home"></item>
+    <item
+        android:id="@+id/tab2"
         android:icon="@drawable/bar_news"
         android:title="@string/home"></item>
 
@@ -17,6 +20,10 @@
 
     <item
         android:id="@+id/tab4"
+        android:icon="@drawable/bar_my"
+        android:title="@string/setting"></item>
+    <item
+        android:id="@+id/tab3"
         android:icon="@drawable/bar_my"
         android:title="@string/setting"></item>
 </menu>

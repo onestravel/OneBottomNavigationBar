@@ -1,6 +1,6 @@
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'org.jetbrains.dokka-android'
+//apply plugin: 'org.jetbrains.dokka-android'
 
 
 if (project.hasProperty("kotlin")) { //Kotlin libraries
@@ -9,7 +9,7 @@ if (project.hasProperty("kotlin")) { //Kotlin libraries
         from android.sourceSets.main.java.srcDirs
     }
 
-    task javadoc(type: Javadoc, dependsOn: dokka) {
+    task javadoc(type: Javadoc) {
 
     }
 } else if (project.hasProperty("android")) { // Android libraries
@@ -35,10 +35,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 //解决kotlin javadoc.options抱错
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/javadoc"
-}
+//dokka {
+////    outputFormat = 'html'
+////    outputDirectory = "$buildDir/javadoc"
+//}
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
@@ -146,3 +146,6 @@ bintray {
         }
     }
 }
+//./gradlew install
+//./gradlew bintrayUpload
+
