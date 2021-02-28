@@ -219,8 +219,8 @@ dependencies {
 ```
 
 ### 添加Fragment进行管理，点击自动切换
-**需要先设置FragmentManager管理器和加载Fragment的ViewGroup,一般为FrameLayout ,需要设置id;之后调用addFragment，为对应的Tab添加Fragment,**
-```
+**1. 需要先设置FragmentManager管理器和加载Fragment的ViewGroup,一般为FrameLayout ,需要设置id;之后调用addFragment，为对应的Tab添加Fragment,**
+```java
         bottomView.setFragmentManager(getFragmentManager(),mainFragment);
         bottomView.addFragment(R.id.tab1,new FirstFragment());
         bottomView.addFragment(R.id.tab2,new SecondFragment());
@@ -228,9 +228,35 @@ dependencies {
         bottomView.addFragment(R.id.tab4,new FourFragment());
         bottomView.addFragment(R.id.tab5,new FiveFragment());
 ```
+**2. 使用 ViewPager 来管理切换 Fragment** begin 1.2.4-beta
+java
+
+```java
+        ArrayList<Fragment>  fragments = new ArrayList<>();
+        fragments.add(new FirstFragment());
+        fragments.add(new SecondFragment());
+        fragments.add(new ThirdFragment());
+        fragments.add(new FourFragment());
+        fragments.add(new FiveFragment());
+        bottomView.attachViewPager(getSupportFragmentManager(),viewPager, fragments);
+```
+
+kotlin
+
+```kotlin
+        bottomView.attachViewPager(supportFragmentManager,viewPager, listOf(FirstFragment(),ThirdFragment(),FourFragment(),FiveFragment()))
+```
+
+注意：如果 tab 中有不需要展示 Fragment 的时候，在使用 ViewPager 管理切换 Fragment 时，也不应该包含对应的 Fragment 对象
 
 
 ### 版本更新说明
+
+
+#### 1.2.4-beta
+- 修复菜单突出时，上边界划线失效问题
+- 支持 Viewpager 切换 Fragment
+
 
 #### 1.2.2
 - 修复菜单突出时，上边界划线失效问题
