@@ -87,7 +87,7 @@ dependencies {
 | app:oneMenu           | @menu/botom_menu       | BottomNavigationBar导航栏的关键，设置导航栏的tab菜单                  |
 | app:oneItemTextSize   | 15sp       | 设置导航栏文字的大小                 |
 | app:oneItemIconWidth   | 30dp       | 设置导航栏Icon的宽度                 |
-| app:oneIemIconHeight   | 30dp       | 设置导航栏Icon的高度                |
+| app:oneItemIconHeight   | 30dp       | 设置导航栏Icon的高度                |
 | app:oneItemTextTopMargin   | 5dp       | 设置导航栏文字和Icon的间隔高度                  |
 | app:oneItemTopLineColor   |#CCCCCC       | 设置导航栏顶部分割线颜色，想去掉该分割线可设置透明色                  |
 | app:oneItemPadding   |5dp      | 设置正常导航栏上下边距                 |
