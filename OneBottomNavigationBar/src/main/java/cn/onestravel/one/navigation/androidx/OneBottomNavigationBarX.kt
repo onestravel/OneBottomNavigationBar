@@ -188,6 +188,9 @@ class OneBottomNavigationBar : View {
             return
         }
         try {
+            if (!item.showFragment) {
+                return
+            }
             if (mViewPager != null) {
                 showPosition = if (vpPosition == -1) {
                     if (needChangePos(position)) {
@@ -201,13 +204,10 @@ class OneBottomNavigationBar : View {
                 mViewPager?.currentItem = showPosition
             } else if (manager != null || containerView != null || containerView is ViewGroup || containerView!!.id != View.NO_ID) {
                 showPosition = position;
-                if (item.showFragment) {
-                    val fragment = fragmentMap[item.id]
-                            ?: throw RuntimeException("[" + item.id + "] fragment is null ")
-                    selectFragmentByManager(fragment)
-                }
+                val fragment = fragmentMap[item.id]
+                        ?: throw RuntimeException("[" + item.id + "] fragment is null ")
+                selectFragmentByManager(fragment)
             }
-
 
         } catch (e: Exception) {
             e.printStackTrace()
