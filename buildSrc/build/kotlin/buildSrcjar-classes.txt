@@ -1,0 +1,1 @@
+/Users/a11035/onestravelSpace/BottomNavigationBar/buildSrc/build/classes/kotlin/main/Deps.class:/Users/a11035/onestravelSpace/BottomNavigationBar/buildSrc/build/classes/kotlin/main/Version.class
